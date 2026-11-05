@@ -1,0 +1,17 @@
+{
+    "name": "صيانتي",
+    "short_name": "صيانتي",
+    "start_url": "/app/",
+    "display": "standalone",
+    "background_color": "#F7F8FA",
+    "theme_color": "#2B3487",
+    "description": "نظام صيانتي لإدارة الصيانة والإنتاج والسلامة - الماس للعطور",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        { "src": "icons/Icon-192.png", "sizes": "192x192", "type": "image/png" },
+        { "src": "icons/Icon-512.png", "sizes": "512x512", "type": "image/png" },
+        { "src": "icons/Icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+        { "src": "icons/Icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ]
+}

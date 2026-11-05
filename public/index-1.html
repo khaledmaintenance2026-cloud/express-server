@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>صيانتي | نظام إدارة الصيانة والإنتاج والسلامة</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Cairo', system-ui, sans-serif; }
+  body { background: #f3f4f6; }
+  .tab-btn.active { background: #0f766e; color: #fff; }
+  .tab-btn { transition: all .15s; }
+  .badge { display:inline-block; padding:2px 10px; border-radius:9999px; font-size:12px; font-weight:600; }
+  .modal-backdrop { background: rgba(15,23,42,.55); }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  table th { position: sticky; top: 0; background: #f9fafb; }
+</style>
+</head>
+<body class="text-slate-800">
+
+<div id="toastHost" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 items-center"></div>
+
+<!-- ============================== شاشة الدخول / التسجيل ============================== -->
+<div id="authView" class="min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 bg-teal-700 rounded-2xl flex items-center justify-center mx-auto mb-3 text-white text-2xl font-bold">ص</div>
+      <h1 class="text-2xl font-bold text-slate-900">صيانتي</h1>
+      <p class="text-slate-500 text-sm mt-1">نظام إدارة الصيانة والإنتاج والسلامة المهنية</p>
+    </div>
+
+    <div class="flex bg-slate-100 rounded-xl p-1 mb-6">
+      <button id="showLoginBtn" class="flex-1 py-2 rounded-lg text-sm font-semibold bg-white shadow">تسجيل الدخول</button>
+      <button id="showRegisterBtn" class="flex-1 py-2 rounded-lg text-sm font-semibold text-slate-500">حساب جديد</button>
+    </div>
+
+    <form id="loginForm" class="space-y-3">
+      <div>
+        <label class="text-sm font-medium text-slate-600">رقم الجوال أو البريد الإلكتروني</label>
+        <input required type="text" id="loginEmail" dir="ltr" autocomplete="username" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600" placeholder="05xxxxxxxx أو example@company.com">
+      </div>
+      <div>
+        <label class="text-sm font-medium text-slate-600">كلمة المرور</label>
+        <input required type="password" id="loginPassword" autocomplete="current-password" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600">
+      </div>
+      <button type="submit" class="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg">دخول</button>
+      <button type="button" id="showForgotBtn" class="w-full text-sm text-teal-700 hover:underline py-1">نسيت كلمة المرور؟</button>
+    </form>
+
+    <form id="registerForm" class="space-y-3 hidden">
+      <div>
+        <label class="text-sm font-medium text-slate-600">الاسم الكامل</label>
+        <input required id="regName" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600">
+      </div>
+      <div>
+        <label class="text-sm font-medium text-slate-600">رقم الجوال (يُستخدم للدخول واستعادة كلمة المرور)</label>
+        <input required type="tel" id="regPhone" dir="ltr" autocomplete="tel" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600" placeholder="05xxxxxxxx">
+      </div>
+      <div>
+        <label class="text-sm font-medium text-slate-600">البريد الإلكتروني <span class="text-slate-400 font-normal">(اختياري)</span></label>
+        <input type="email" id="regEmail" dir="ltr" autocomplete="email" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600" placeholder="اتركه فارغًا إن لم يكن لديك بريد">
+      </div>
+      <div>
+        <label class="text-sm font-medium text-slate-600">كلمة المرور (٨ أحرف على الأقل، فيها حرف ورقم)</label>
+        <input required type="password" minlength="8" id="regPassword" autocomplete="new-password" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600">
+      </div>
+      <button type="submit" class="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg">إنشاء الحساب</button>
+      <p class="text-xs text-slate-400 text-center">سيبقى حسابك بانتظار اعتماد مدير النظام قبل الاستخدام</p>
+    </form>
+
+    <form id="forgotForm" class="space-y-3 hidden">
+      <p class="text-sm text-slate-600">أدخل رقم جوالك (أو بريدك) وسنرسل لك رمزًا من ٦ أرقام على واتساب لتعيين كلمة مرور جديدة.</p>
+      <div>
+        <label class="text-sm font-medium text-slate-600">رقم الجوال أو البريد الإلكتروني</label>
+        <input required type="text" id="forgotIdentifier" dir="ltr" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600" placeholder="05xxxxxxxx">
+      </div>
+      <button type="submit" class="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg">إرسال الرمز على واتساب</button>
+      <button type="button" data-back-login class="w-full text-sm text-slate-500 hover:underline py-1">رجوع لتسجيل الدخول</button>
+    </form>
+
+    <form id="resetForm" class="space-y-3 hidden">
+      <p id="resetHint" class="text-sm text-emerald-700 bg-emerald-50 rounded-lg p-3"></p>
+      <div>
+        <label class="text-sm font-medium text-slate-600">الرمز (٦ أرقام)</label>
+        <input required inputmode="numeric" maxlength="6" id="resetCode" dir="ltr" autocomplete="one-time-code" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-center tracking-widest focus:outline-none focus:ring-2 focus:ring-teal-600" placeholder="______">
+      </div>
+      <div>
+        <label class="text-sm font-medium text-slate-600">كلمة المرور الجديدة (٨ أحرف على الأقل، فيها حرف ورقم)</label>
+        <input required type="password" minlength="8" id="resetPassword" autocomplete="new-password" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600">
+      </div>
+      <button type="submit" class="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg">تغيير كلمة المرور</button>
+      <button type="button" id="resendCodeBtn" class="w-full text-sm text-teal-700 hover:underline py-1">لم يصل الرمز؟ أعد الإرسال</button>
+      <button type="button" data-back-login class="w-full text-sm text-slate-500 hover:underline py-1">رجوع لتسجيل الدخول</button>
+    </form>
+
+    <p id="authError" class="text-red-600 text-sm text-center mt-4 hidden"></p>
+  </div>
+</div>
+
+<!-- ============================== شاشة بانتظار الاعتماد ============================== -->
+<div id="pendingView" class="min-h-screen hidden items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center">
+    <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">⏳</div>
+    <h2 class="text-xl font-bold mb-2">حسابك بانتظار الاعتماد</h2>
+    <p class="text-slate-500 text-sm mb-6">تم إنشاء حسابك بنجاح، لكن يجب أن يعتمده مدير النظام ويحدد صلاحياتك قبل أن تتمكن من استخدام النظام.</p>
+    <button id="pendingRefreshBtn" class="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg mb-2">تحقق من الحالة</button>
+    <button id="pendingLogoutBtn" class="w-full text-slate-500 text-sm py-2">تسجيل الخروج</button>
+  </div>
+</div>
+
+<!-- ============================== التطبيق الرئيسي ============================== -->
+<div id="appView" class="hidden min-h-screen">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+    <div class="max-w-[1400px] mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-teal-700 rounded-xl flex items-center justify-center text-white font-bold">ص</div>
+        <div>
+          <div id="factoryNameLabel" class="font-bold text-slate-900 leading-tight">صيانتي</div>
+          <div class="text-xs text-slate-400">نظام إدارة الصيانة والإنتاج والسلامة</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-left hidden sm:block">
+          <div id="userNameLabel" class="text-sm font-semibold"></div>
+          <div id="userRoleLabel" class="text-xs text-slate-400"></div>
+        </div>
+        <button id="logoutBtn" class="text-sm bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-lg font-medium">خروج</button>
+      </div>
+    </div>
+    <nav id="tabNav" class="max-w-[1400px] mx-auto px-4 flex gap-1 overflow-x-auto pb-2"></nav>
+  </header>
+
+  <main class="max-w-[1400px] mx-auto p-4">
+    <div id="tab-dashboard" class="tab-panel"></div>
+    <div id="tab-production" class="tab-panel hidden"></div>
+    <div id="tab-safety" class="tab-panel hidden"></div>
+    <div id="tab-workorders" class="tab-panel hidden"></div>
+    <div id="tab-technicians" class="tab-panel hidden"></div>
+    <div id="tab-reports" class="tab-panel hidden"></div>
+    <div id="tab-settings" class="tab-panel hidden"></div>
+  </main>
+</div>
+
+<!-- نافذة منبثقة عامة (للنماذج والتفاصيل) -->
+<div id="modalRoot" class="fixed inset-0 z-50 hidden">
+  <div class="absolute inset-0 modal-backdrop" id="modalBackdrop"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4 overflow-y-auto">
+    <div id="modalBox" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-8"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ============================================================================
+   الحالة العامة + دوال مساعدة للاتصال بالـ API
+============================================================================ */
+const API = '/api';
+const state = {
+  token: localStorage.getItem('sayanati_token') || null,
+  user: null,
+  settings: {},
+  technicians: [],
+  lines: [],
+  equipment: [],
+};
+
+function showToast(message, type) {
+  const host = document.getElementById('toastHost');
+  const div = document.createElement('div');
+  const colors = { error: 'bg-red-600', success: 'bg-emerald-600', info: 'bg-slate-800' };
+  div.className = `${colors[type] || colors.info} text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-lg`;
+  div.textContent = message;
+  host.appendChild(div);
+  setTimeout(() => div.remove(), 3500);
+}
+
+async function api(path, { method = 'GET', body } = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (state.token) headers['Authorization'] = `Bearer ${state.token}`;
+  let res;
+  try {
+    res = await fetch(`${API}${path}`, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
+  } catch (e) {
+    showToast('تعذّر الاتصال بالسيرفر — تحقق من الشبكة', 'error');
+    throw e;
+  }
+  if (res.status === 401 && state.token) {
+    logout();
+    throw new Error('unauthorized');
+  }
+  if (res.status === 204) return null;
+  let data;
+  try { data = await res.json(); } catch { data = null; }
+  if (!res.ok) {
+    const msg = (data && data.error) || `حدث خطأ (${res.status})`;
+    showToast(msg, 'error');
+    throw new Error(msg);
+  }
+  return data;
+}
+
+function exportCsv(type) {
+  const url = `${API}/reports/export.csv?type=${type}&token=${encodeURIComponent(state.token)}`;
+  // نستخدم fetch يدويًا (بدل رابط مباشر) لأن التنزيل يحتاج ترويسة Authorization
+  fetch(`${API}/reports/export.csv?type=${type}`, { headers: { Authorization: `Bearer ${state.token}` } })
+    .then((r) => r.blob())
+    .then((blob) => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${type}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    })
+    .catch(() => showToast('تعذّر تصدير الملف', 'error'));
+}
+
+/* ============================================================================
+   عناصر واجهة عامة: نافذة منبثقة، شارات الحالة
+============================================================================ */
+function openModal(html) {
+  document.getElementById('modalBox').innerHTML = html;
+  document.getElementById('modalRoot').classList.remove('hidden');
+}
+function closeModal() {
+  document.getElementById('modalRoot').classList.add('hidden');
+  document.getElementById('modalBox').innerHTML = '';
+}
+document.getElementById('modalBackdrop').addEventListener('click', closeModal);
+
+const STATUS_LABELS = {
+  // أوامر العمل
+  new: ['جديد', 'bg-slate-100 text-slate-700'],
+  pending_assignment: ['بانتظار تعيين فني', 'bg-amber-100 text-amber-700'],
+  waiting_loto: ['بانتظار تصريح LOTO', 'bg-purple-100 text-purple-700'],
+  in_progress: ['قيد التنفيذ', 'bg-blue-100 text-blue-700'],
+  waiting_parts: ['بانتظار قطع غيار', 'bg-orange-100 text-orange-700'],
+  completed: ['مكتمل', 'bg-emerald-100 text-emerald-700'],
+  cancelled: ['ملغى', 'bg-red-100 text-red-700'],
+  // بلاغات
+  open: ['مفتوح', 'bg-red-100 text-red-700'],
+  linked: ['مرتبط بأمر عمل', 'bg-blue-100 text-blue-700'],
+  closed: ['مغلق', 'bg-emerald-100 text-emerald-700'],
+  // تصاريح
+  pending: ['بانتظار الاعتماد', 'bg-amber-100 text-amber-700'],
+  approved: ['معتمد', 'bg-emerald-100 text-emerald-700'],
+  rejected: ['مرفوض', 'bg-red-100 text-red-700'],
+  // فنيون
+  available: ['متاح', 'bg-emerald-100 text-emerald-700'],
+  busy: ['مشغول', 'bg-amber-100 text-amber-700'],
+  on_leave: ['إجازة', 'bg-slate-100 text-slate-500'],
+  // near-miss / loto
+  reviewed: ['تمت المراجعة', 'bg-blue-100 text-blue-700'],
+  locked: ['تم العزل', 'bg-purple-100 text-purple-700'],
+  verified: ['تم التحقق', 'bg-emerald-100 text-emerald-700'],
+  released: ['تم رفع العزل', 'bg-slate-100 text-slate-600'],
+  // مستخدمون
+  revoked: ['ملغى الاعتماد', 'bg-red-100 text-red-700'],
+};
+function statusBadge(s) {
+  const [label, cls] = STATUS_LABELS[s] || [s, 'bg-slate-100 text-slate-600'];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+const PERMIT_TYPE_LABELS = { hot_work: 'عمل حار', confined_space: 'أماكن مغلقة', height: 'ارتفاعات', electrical: 'كهرباء' };
+const OPERATION_TYPE_LABELS = {
+  hot_work: 'أعمال ساخنة (لحام / قطع)',
+  confined_space: 'العمل في أماكن مغلقة',
+  height: 'العمل على ارتفاعات',
+  electrical: 'أعمال كهربائية (يتطلب عزل الطاقة LOTO)',
+  excavation: 'أعمال حفر',
+  lifting: 'رفع أحمال بالرافعة',
+  other: 'أخرى',
+};
+const SITE_HAZARD_OPTIONS = ['أسطح زلقة', 'مساحات ضيقة', 'ارتفاعات', 'مصادر كهربائية مكشوفة', 'مواد كيميائية', 'ضوضاء عالية', 'حركة معدات ومركبات', 'غازات أو أبخرة', 'أخرى'];
+const POTENTIAL_RISK_OPTIONS = ['سقوط من ارتفاع', 'صعق كهربائي', 'حريق أو انفجار', 'اختناق', 'إصابة بأداة أو معدة', 'انزلاق أو تعثر', 'استنشاق مواد ضارة', 'أخرى'];
+const PPE_OPTIONS = ['خوذة', 'نظارات واقية', 'قفازات', 'حذاء أمان', 'سترة عاكسة', 'حزام أمان (ارتفاعات)', 'كمامة / جهاز تنفس', 'واقيات أذن', 'ملابس مقاومة للحريق'];
+const ENERGY_TYPE_LABELS = { electrical: 'كهربائي', hydraulic: 'هيدروليكي', mechanical: 'ميكانيكي', pneumatic: 'هوائي' };
+const ROLE_LABELS = { admin: 'مدير النظام', maintenance_technician: 'فني صيانة', maintenance_manager: 'مسؤول صيانة', production: 'الإنتاج', safety: 'السلامة المهنية', contractor: 'مقاول خارجي' };
+// دور "الصيانة" العام انقسم إلى فني صيانة ومسؤول صيانة (راجع schema.sql) —
+// كلاهما يملك صلاحيات قسم الصيانة نفسها حاليًا، فنجمعهما هنا لتفادي تكرار
+// هذين الاسمين في كل تحقق صلاحية عبر هذا الملف.
+const MAINTENANCE_ROLES = ['maintenance_technician', 'maintenance_manager'];
+function isMaintenanceRole(role) { return MAINTENANCE_ROLES.includes(role); }
+function fmtDate(d) { return d ? new Date(d).toLocaleString('ar-SA', { dateStyle: 'medium', timeStyle: 'short' }) : '—'; }
+function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+// الحساب المسجَّل بالجوال فقط يحمل بريدًا اصطلاحيًا داخليًا لا يُعرض للمستخدم.
+const PHONE_EMAIL_RE = /@phone\.sayanati\.local$/i;
+function userContactLine(u) {
+  const parts = [];
+  if (u.email && !PHONE_EMAIL_RE.test(u.email)) parts.push(u.email);
+  if (u.phone) parts.push(u.phone);
+  return parts.join(' — ') || '—';
+}
+
+/* ============================================================================
+   الدخول / التسجيل / الخروج
+============================================================================ */
+const AUTH_FORMS = ['loginForm', 'registerForm', 'forgotForm', 'resetForm'];
+function showAuthForm(name) {
+  AUTH_FORMS.forEach((id) => document.getElementById(id).classList.toggle('hidden', id !== name));
+  const onLogin = name !== 'registerForm';
+  document.getElementById('showLoginBtn').className = `flex-1 py-2 rounded-lg text-sm font-semibold ${onLogin ? 'bg-white shadow' : 'text-slate-500'}`;
+  document.getElementById('showRegisterBtn').className = `flex-1 py-2 rounded-lg text-sm font-semibold ${onLogin ? 'text-slate-500' : 'bg-white shadow'}`;
+  authErr('');
+}
+document.getElementById('showLoginBtn').onclick = () => showAuthForm('loginForm');
+document.getElementById('showRegisterBtn').onclick = () => showAuthForm('registerForm');
+document.getElementById('showForgotBtn').onclick = () => {
+  showAuthForm('forgotForm');
+  const typed = document.getElementById('loginEmail').value.trim();
+  if (typed) document.getElementById('forgotIdentifier').value = typed;
+};
+document.querySelectorAll('[data-back-login]').forEach((b) => { b.onclick = () => showAuthForm('loginForm'); });
+
+function authErr(msg) {
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.classList.toggle('hidden', !msg);
+}
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  authErr('');
+  try {
+    const data = await api('/auth/login', { method: 'POST', body: {
+      identifier: document.getElementById('loginEmail').value.trim(),
+      password: document.getElementById('loginPassword').value,
+    } });
+    setSession(data.token, data.user);
+  } catch (err) { authErr(err.message); }
+});
+
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  authErr('');
+  try {
+    const email = document.getElementById('regEmail').value.trim();
+    const data = await api('/auth/register', { method: 'POST', body: {
+      name: document.getElementById('regName').value.trim(),
+      phone: document.getElementById('regPhone').value.trim(),
+      ...(email ? { email } : {}),
+      password: document.getElementById('regPassword').value,
+    } });
+    setSession(data.token, data.user);
+  } catch (err) { authErr(err.message); }
+});
+
+/* استعادة كلمة المرور: ١) طلب الرمز على واتساب ٢) إدخال الرمز وكلمة مرور جديدة */
+let forgotIdentifier = '';
+async function requestResetCode() {
+  const data = await api('/auth/forgot-password', { method: 'POST', body: { identifier: forgotIdentifier } });
+  document.getElementById('resetHint').textContent = data.message || 'تم إرسال الرمز على واتساب';
+  document.getElementById('resetCode').value = '';
+  showAuthForm('resetForm');
+  document.getElementById('resetCode').focus();
+}
+document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  authErr('');
+  forgotIdentifier = document.getElementById('forgotIdentifier').value.trim();
+  try { await requestResetCode(); } catch (err) { authErr(err.message); }
+});
+document.getElementById('resendCodeBtn').onclick = async () => {
+  authErr('');
+  try { await requestResetCode(); showToast('أُعيد إرسال الرمز', 'success'); } catch (err) { authErr(err.message); }
+};
+document.getElementById('resetForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  authErr('');
+  try {
+    await api('/auth/reset-password', { method: 'POST', body: {
+      identifier: forgotIdentifier,
+      code: document.getElementById('resetCode').value.trim(),
+      newPassword: document.getElementById('resetPassword').value,
+    } });
+    document.getElementById('resetPassword').value = '';
+    document.getElementById('loginEmail').value = forgotIdentifier;
+    document.getElementById('loginPassword').value = '';
+    showAuthForm('loginForm');
+    showToast('تم تغيير كلمة المرور — سجّل الدخول بها الآن', 'success');
+  } catch (err) { authErr(err.message); }
+});
+
+function setSession(token, user) {
+  state.token = token;
+  state.user = user;
+  localStorage.setItem('sayanati_token', token);
+  route();
+}
+function logout() {
+  state.token = null;
+  state.user = null;
+  localStorage.removeItem('sayanati_token');
+  showAuthForm('loginForm');
+  document.getElementById('loginPassword').value = '';
+  route();
+}
+document.getElementById('logoutBtn').onclick = logout;
+document.getElementById('pendingLogoutBtn').onclick = logout;
+document.getElementById('pendingRefreshBtn').onclick = async () => {
+  try {
+    const data = await api('/auth/me');
+    state.user = data.user;
+    route();
+  } catch {}
+};
+
+/* ============================================================================
+   التنقّل بين الشاشات الرئيسية + التبويبات
+============================================================================ */
+const TABS = [
+  { key: 'dashboard', label: 'الرئيسية', roles: null, load: loadDashboard },
+  { key: 'production', label: 'بلاغات الإنتاج', roles: ['production', ...MAINTENANCE_ROLES], load: loadProduction },
+  { key: 'safety', label: 'السلامة والتصاريح', roles: ['safety', ...MAINTENANCE_ROLES, 'production', 'contractor'], load: loadSafety },
+  { key: 'workorders', label: 'أوامر الصيانة', roles: null, load: loadWorkOrders },
+  { key: 'technicians', label: 'إدارة الفنيين', roles: [...MAINTENANCE_ROLES], load: loadTechnicians },
+  { key: 'reports', label: 'التقارير', roles: [...MAINTENANCE_ROLES, 'safety', 'production'], load: loadReports },
+  { key: 'settings', label: 'إعدادات الموقع', roles: ['admin'], load: loadSettingsTab },
+];
+let activeTab = 'dashboard';
+
+function canSee(roles) {
+  if (state.user.role === 'admin') return true;
+  // حساب المقاول الخارجي مقيّد بالتبويبات المصرَّح له بها صراحة فقط (السلامة
+  // وطلب التصاريح) — لا يظهر له أي تبويب "roles: null" (مفتوح للجميع) لأنها
+  // قد تحوي بيانات داخلية (أوامر صيانة، إنتاج...) لا تخصه.
+  if (state.user.role === 'contractor') return Array.isArray(roles) && roles.includes('contractor');
+  if (!roles) return true;
+  return roles.includes(state.user.role);
+}
+
+function renderNav() {
+  const nav = document.getElementById('tabNav');
+  nav.innerHTML = TABS.filter((t) => canSee(t.roles)).map((t) => `
+    <button data-tab="${t.key}" class="tab-btn whitespace-nowrap px-4 py-2 rounded-t-lg text-sm font-semibold text-slate-600 ${t.key === activeTab ? 'active' : ''}">${t.label}</button>
+  `).join('');
+  nav.querySelectorAll('[data-tab]').forEach((btn) => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+}
+
+function switchTab(key) {
+  activeTab = key;
+  document.querySelectorAll('.tab-btn').forEach((b) => b.classList.toggle('active', b.dataset.tab === key));
+  document.querySelectorAll('.tab-panel').forEach((p) => p.classList.add('hidden'));
+  document.getElementById(`tab-${key}`).classList.remove('hidden');
+  const tab = TABS.find((t) => t.key === key);
+  if (tab) tab.load();
+}
+
+async function route() {
+  if (!state.token) {
+    show('authView'); return;
+  }
+  if (!state.user) {
+    try { state.user = (await api('/auth/me')).user; }
+    catch { show('authView'); return; }
+  }
+  if (state.user.status === 'pending' || state.user.status === 'revoked') {
+    show('pendingView'); return;
+  }
+  show('appView');
+  document.getElementById('userNameLabel').textContent = state.user.name;
+  document.getElementById('userRoleLabel').textContent = ROLE_LABELS[state.user.role] || state.user.role;
+  try {
+    const { settings } = await api('/settings');
+    state.settings = settings;
+    if (settings.factory_name) document.getElementById('factoryNameLabel').textContent = settings.factory_name;
+  } catch {}
+  renderNav();
+  if (!canSee((TABS.find((t) => t.key === activeTab) || {}).roles)) {
+    activeTab = (TABS.find((t) => canSee(t.roles)) || {}).key || 'dashboard';
+  }
+  switchTab(activeTab);
+}
+function show(id) {
+  ['authView', 'pendingView', 'appView'].forEach((v) => {
+    const el = document.getElementById(v);
+    if (v === id) { el.classList.remove('hidden'); if (v !== 'appView') el.classList.add('flex'); }
+    else { el.classList.add('hidden'); el.classList.remove('flex'); }
+  });
+}
+
+/* ============================================================================
+   الرئيسية (لوحة المؤشرات KPIs)
+============================================================================ */
+async function loadDashboard() {
+  const el = document.getElementById('tab-dashboard');
+  el.innerHTML = `<div class="text-slate-400 text-sm py-10 text-center">جارِ التحميل...</div>`;
+  let d;
+  try { d = await api('/dashboard'); } catch { return; }
+
+  const kpi = (label, value, color) => `
+    <div class="bg-white rounded-2xl shadow-sm p-5 border-t-4 ${color}">
+      <div class="text-slate-400 text-sm font-medium">${label}</div>
+      <div class="text-3xl font-extrabold mt-1">${value}</div>
+    </div>`;
+
+  // كل قسم (صيانة/إنتاج/سلامة) مُعرَّف بلوحته الخاصة — يظهر فقط لو أعاده
+  // /api/dashboard فعليًا (السيرفر لا يُعيد إلا القسم الذي يملك المستخدم
+  // صلاحيته، راجع routes/dashboard.js)، فمسؤول قسم واحد لا يرى أقسامًا أخرى
+  // إطلاقًا حتى لو تعدّدت لوحات مدير النظام على نفس الشاشة.
+  const sections = [];
+
+  if (d.maintenance) {
+    const m = d.maintenance;
+    sections.push(`
+      <div class="mb-8">
+        <h2 class="text-base font-bold mb-3 text-slate-700">لوحة الصيانة</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+          ${kpi('أوامر عمل مفتوحة', m.openWorkOrders, 'border-blue-500')}
+          ${kpi('مكتملة هذا الشهر', m.completedThisMonth, 'border-emerald-500')}
+          ${kpi('متوسط زمن الإنجاز (د)', m.avgResolutionMinutes ?? '—', 'border-teal-500')}
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="bg-white rounded-2xl shadow-sm p-5">
+            <h3 class="font-bold mb-3">الأعطال الأكثر تكرارًا (آخر ٣٠ يوم)</h3>
+            ${m.topFaults.length ? `<table class="w-full text-sm"><tbody>
+              ${m.topFaults.map((f) => `<tr class="border-b border-slate-100"><td class="py-2">${esc(f.description)}</td><td class="py-2 text-left font-bold text-slate-500">${f.occurrences}×</td></tr>`).join('')}
+            </tbody></table>` : `<p class="text-slate-400 text-sm">لا توجد بيانات كافية بعد</p>`}
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-5">
+            <h3 class="font-bold mb-3">أداء الفنيين</h3>
+            ${m.technicianPerformance.length ? `<table class="w-full text-sm"><thead><tr class="text-slate-400 text-xs"><th class="text-right pb-2">الفني</th><th class="pb-2">منجز</th><th class="pb-2">متوسط الزمن (د)</th></tr></thead><tbody>
+              ${m.technicianPerformance.map((t) => `<tr class="border-b border-slate-100"><td class="py-2 font-medium">${esc(t.name)}</td><td class="py-2 text-center">${t.completedCount}</td><td class="py-2 text-center">${t.avgResolutionMinutes ?? '—'}</td></tr>`).join('')}
+            </tbody></table>` : `<p class="text-slate-400 text-sm">لا يوجد فنيون بعد</p>`}
+          </div>
+        </div>
+      </div>`);
+  }
+
+  if (d.production) {
+    const p = d.production;
+    sections.push(`
+      <div class="mb-8">
+        <h2 class="text-base font-bold mb-3 text-slate-700">لوحة الإنتاج</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          ${kpi('بلاغات أعطال مفتوحة', p.openIncidents, 'border-red-500')}
+          ${kpi('توقف آخر ٣٠ يوم (د)', p.downtimeMinutesLast30Days, 'border-orange-500')}
+          ${kpi('باتشات اليوم', p.batchesToday, 'border-sky-500')}
+          ${kpi('إجمالي الإنتاج هذا الشهر', p.producedQuantityThisMonth, 'border-emerald-500')}
+        </div>
+      </div>`);
+  }
+
+  if (d.safety) {
+    const s = d.safety;
+    sections.push(`
+      <div class="mb-8">
+        <h2 class="text-base font-bold mb-3 text-slate-700">لوحة السلامة</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+          ${kpi('تصاريح بانتظار الاعتماد', s.pendingSafetyPermits, 'border-amber-500')}
+          ${kpi('حوادث وشيكة مفتوحة', s.openNearMissReports, 'border-purple-500')}
+          ${kpi('تصاريح معتمدة هذا الشهر', s.approvedThisMonth, 'border-emerald-500')}
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm p-5">
+          <h3 class="font-bold mb-3">أكثر أنواع الأعمال الخطرة طلبًا (آخر ٣٠ يوم)</h3>
+          ${s.topOperationTypes.length ? `<table class="w-full text-sm"><tbody>
+            ${s.topOperationTypes.map((o) => `<tr class="border-b border-slate-100"><td class="py-2">${esc(OPERATION_TYPE_LABELS[o.type] || o.type)}</td><td class="py-2 text-left font-bold text-slate-500">${o.occurrences}×</td></tr>`).join('')}
+          </tbody></table>` : `<p class="text-slate-400 text-sm">لا توجد بيانات كافية بعد</p>`}
+        </div>
+      </div>`);
+  }
+
+  el.innerHTML = sections.length
+    ? sections.join('')
+    : `<p class="text-slate-400 text-sm py-10 text-center">لا توجد لوحة مؤشرات لدورك الحالي</p>`;
+}
+
+/* ============================================================================
+   بلاغات الإنتاج
+============================================================================ */
+async function ensureLinesAndEquipment() {
+  const [linesRes, equipRes] = await Promise.all([api('/production/lines'), api('/production/equipment')]);
+  state.lines = linesRes.lines;
+  state.equipment = equipRes.equipment;
+}
+
+async function loadProduction() {
+  const el = document.getElementById('tab-production');
+  el.innerHTML = `<div class="text-slate-400 text-sm py-10 text-center">جارِ التحميل...</div>`;
+  let incidents;
+  try {
+    await ensureLinesAndEquipment();
+    incidents = (await api('/production/incidents')).incidents;
+  } catch { return; }
+
+  const canReport = state.user.role === 'admin' || state.user.role === 'production';
+  el.innerHTML = `
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold">بلاغات أعطال الإنتاج</h2>
+      ${canReport ? `<button id="newIncidentBtn" class="bg-teal-700 hover:bg-teal-800 text-white text-sm font-semibold px-4 py-2 rounded-lg">+ بلاغ عطل جديد</button>` : ''}
+    </div>
+    <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="text-slate-400 text-xs border-b border-slate-100">
+          <th class="text-right p-3">الوصف</th><th class="p-3">الخط</th><th class="p-3">المعدة</th>
+          <th class="p-3">بواسطة</th><th class="p-3">وقت التوقف (د)</th><th class="p-3">الحالة</th><th class="p-3"></th>
+        </tr></thead>
+        <tbody>
+          ${incidents.map((i) => `
+            <tr class="border-b border-slate-50 hover:bg-slate-50">
+              <td class="p-3 max-w-xs">${esc(i.description)}</td>
+              <td class="p-3 text-center">${esc(i.line_name || '—')}</td>
+              <td class="p-3 text-center">${esc(i.equipment_name || '—')}</td>
+              <td class="p-3 text-center">${esc(i.reported_by)}</td>
+              <td class="p-3 text-center font-mono">${Math.round(i.downtime_minutes)}</td>
+              <td class="p-3 text-center">${statusBadge(i.status)}</td>
+              <td class="p-3 text-center whitespace-nowrap">
+                ${i.status !== 'closed' ? `<button data-end="${i.id}" class="text-xs text-red-600 hover:underline">إنهاء التوقف</button>` : ''}
+                ${canManageEquipment() ? `<button data-del-incident="${i.id}" class="text-xs text-slate-400 hover:text-red-600 hover:underline ${i.status !== 'closed' ? 'mr-2' : ''}">حذف</button>` : ''}
+              </td>
+            </tr>`).join('') || `<tr><td colspan="7" class="p-6 text-center text-slate-400">لا توجد بلاغات بعد</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+    ${canManageEquipment() ? `
+    <div class="mt-6 bg-white rounded-2xl shadow-sm p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold">خطوط الإنتاج والمعدات</h3>
+        <div class="flex gap-2">
+          <button id="newLineBtn" class="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg font-semibold">+ خط جديد</button>
+          <button id="newEquipBtn" class="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg font-semibold">+ معدة جديدة</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div>
+          <div class="text-slate-400 text-xs mb-1">الخطوط (${state.lines.length})</div>
+          <ul class="space-y-1 max-h-40 overflow-y-auto">${state.lines.map((l) => `<li class="flex justify-between items-center border-b border-slate-50 py-1"><span>${esc(l.name)}</span><span class="flex items-center gap-2"><span class="text-slate-400">${esc(l.location)}</span><button data-edit-line="${l.id}" class="text-slate-300 hover:text-teal-700" title="تعديل الخط">✎</button><button data-del-line="${l.id}" data-del-line-name="${esc(l.name)}" class="text-slate-300 hover:text-red-600" title="حذف الخط">✕</button></span></li>`).join('')}</ul>
+        </div>
+        <div>
+          <div class="text-slate-400 text-xs mb-1">المعدات (${state.equipment.length})</div>
+          <ul class="space-y-1 max-h-40 overflow-y-auto">${state.equipment.map((e) => `<li class="flex justify-between items-center border-b border-slate-50 py-1"><span>${esc(e.name)}</span><span class="flex items-center gap-2"><span class="text-slate-400">${esc(e.type)}</span><button data-edit-equip="${e.id}" class="text-slate-300 hover:text-teal-700" title="تعديل المعدة">✎</button><button data-del-equip="${e.id}" data-del-equip-name="${esc(e.name)}" class="text-slate-300 hover:text-red-600" title="حذف المعدة">✕</button></span></li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>` : ''}
+  `;
+
+  document.getElementById('newIncidentBtn')?.addEventListener('click', openIncidentModal);
+  document.getElementById('newLineBtn')?.addEventListener('click', openLineModal);
+  document.getElementById('newEquipBtn')?.addEventListener('click', openEquipmentModal);
+  el.querySelectorAll('[data-end]').forEach((btn) => btn.addEventListener('click', async () => {
+    try { await api(`/production/incidents/${btn.dataset.end}/end-downtime`, { method: 'PATCH' }); showToast('تم إنهاء التوقف', 'success'); loadProduction(); }
+    catch {}
+  }));
+  el.querySelectorAll('[data-del-incident]').forEach((btn) => btn.addEventListener('click', async () => {
+    if (!confirm('هل تريدون حذف هذا البلاغ نهائيًا؟')) return;
+    try { await api(`/production/incidents/${btn.dataset.delIncident}`, { method: 'DELETE' }); showToast('تم الحذف', 'success'); loadProduction(); }
+    catch {}
+  }));
+  el.querySelectorAll('[data-del-line]').forEach((btn) => btn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    if (!confirm(`حذف الخط "${btn.dataset.delLineName}"؟ (المعدات والبلاغات المرتبطة به تبقى، فقط يُفصَل ربطها)`)) return;
+    try { await api(`/production/lines/${btn.dataset.delLine}`, { method: 'DELETE' }); showToast('تم الحذف', 'success'); loadProduction(); }
+    catch {}
+  }));
+  el.querySelectorAll('[data-edit-line]').forEach((btn) => btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const line = state.lines.find((l) => String(l.id) === btn.dataset.editLine);
+    if (line) openLineModal(line);
+  }));
+  el.querySelectorAll('[data-del-equip]').forEach((btn) => btn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    if (!confirm(`حذف المعدة "${btn.dataset.delEquipName}"؟`)) return;
+    try { await api(`/production/equipment/${btn.dataset.delEquip}`, { method: 'DELETE' }); showToast('تم الحذف', 'success'); loadProduction(); }
+    catch {}
+  }));
+  el.querySelectorAll('[data-edit-equip]').forEach((btn) => btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const eq = state.equipment.find((x) => String(x.id) === btn.dataset.editEquip);
+    if (eq) openEquipmentModal(eq);
+  }));
+}
+function canManageEquipment() { return ['admin', 'production', ...MAINTENANCE_ROLES].includes(state.user.role); }
+
+function lineOptions() { return state.lines.map((l) => `<option value="${l.id}">${esc(l.name)} — ${esc(l.location)}</option>`).join(''); }
+function equipmentOptions() { return state.equipment.map((e) => `<option value="${e.id}">${esc(e.name)}</option>`).join(''); }
+
+function openIncidentModal() {
+  openModal(`
+    <form id="incidentForm" class="p-6 space-y-3">
+      <h3 class="text-lg font-bold mb-2">بلاغ عطل إنتاج جديد</h3>
+      <div><label class="text-sm font-medium text-slate-600">الخط</label>
+        <select id="incLine" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"><option value="">— بدون تحديد —</option>${lineOptions()}</select></div>
+      <div><label class="text-sm font-medium text-slate-600">المعدة</label>
+        <select id="incEquip" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"><option value="">— بدون تحديد —</option>${equipmentOptions()}</select></div>
+      <div><label class="text-sm font-medium text-slate-600">وصف العطل</label>
+        <textarea required id="incDesc" rows="3" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></textarea></div>
+      <div class="flex gap-2 pt-2">
+        <button type="submit" class="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg">إرسال البلاغ</button>
+        <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-lg bg-slate-100">إلغاء</button>
+      </div>
+    </form>`);
+  document.getElementById('incidentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await api('/production/incidents', { method: 'POST', body: {
+        lineId: document.getElementById('incLine').value || null,
+        equipmentId: document.getElementById('incEquip').value || null,
+        description: document.getElementById('incDesc').value.trim(),
+      } });
+      closeModal(); showToast('تم إرسال البلاغ', 'success'); loadProduction();
+    } catch {}
+  });
+}
+
+function openLineModal(existing) {
+  openModal(`
+    <form id="lineForm" class="p-6 space-y-3">
+      <h3 class="text-lg font-bold mb-2">${existing ? 'تعديل خط الإنتاج' : 'خط إنتاج جديد'}</h3>
+      <div><label class="text-sm font-medium text-slate-600">اسم الخط</label>
+        <input required id="lineName" value="${existing ? esc(existing.name) : ''}" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div><label class="text-sm font-medium text-slate-600">الموقع</label>
+        <select id="lineLocation" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2">
+          <option value="المستودع العام" ${existing?.location === 'المستودع العام' ? 'selected' : ''}>المستودع العام</option>
+          <option value="مصنع الرجال" ${existing?.location === 'مصنع الرجال' ? 'selected' : ''}>مصنع الرجال</option>
+          <option value="مصنع النساء" ${existing?.location === 'مصنع النساء' ? 'selected' : ''}>مصنع النساء</option>
+        </select></div>
+      <div class="flex gap-2 pt-2">
+        <button type="submit" class="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg">${existing ? 'حفظ التعديلات' : 'إضافة'}</button>
+        <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-lg bg-slate-100">إلغاء</button>
+      </div>
+    </form>`);
+  document.getElementById('lineForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = { name: document.getElementById('lineName').value.trim(), location: document.getElementById('lineLocation').value };
+    try {
+      if (existing) await api(`/production/lines/${existing.id}`, { method: 'PATCH', body });
+      else await api('/production/lines', { method: 'POST', body });
+      closeModal(); showToast(existing ? 'تم الحفظ' : 'تمت الإضافة', 'success'); loadProduction();
+    } catch {}
+  });
+}
+
+function openEquipmentModal(existing) {
+  openModal(`
+    <form id="equipForm" class="p-6 space-y-3">
+      <h3 class="text-lg font-bold mb-2">${existing ? 'تعديل المعدة' : 'معدة جديدة'}</h3>
+      <div><label class="text-sm font-medium text-slate-600">اسم المعدة</label>
+        <input required id="eqName" value="${existing ? esc(existing.name) : ''}" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div><label class="text-sm font-medium text-slate-600">الرمز / الكود</label>
+        <input id="eqCode" value="${existing?.code ? esc(existing.code) : ''}" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div><label class="text-sm font-medium text-slate-600">النوع</label>
+        <input id="eqType" value="${existing ? esc(existing.type) : ''}" placeholder="مثال: مضخة، محرك، سير ناقل" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div><label class="text-sm font-medium text-slate-600">الخط المرتبط</label>
+        <select id="eqLine" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"><option value="">— بدون تحديد —</option>${state.lines.map((l) => `<option value="${l.id}" ${existing?.line_id == l.id ? 'selected' : ''}>${esc(l.name)} — ${esc(l.location)}</option>`).join('')}</select></div>
+      <div class="flex gap-2 pt-2">
+        <button type="submit" class="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg">${existing ? 'حفظ التعديلات' : 'إضافة'}</button>
+        <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-lg bg-slate-100">إلغاء</button>
+      </div>
+    </form>`);
+  document.getElementById('equipForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = {
+      name: document.getElementById('eqName').value.trim(),
+      code: document.getElementById('eqCode').value.trim() || null,
+      type: document.getElementById('eqType').value.trim() || 'أخرى',
+      lineId: document.getElementById('eqLine').value || null,
+    };
+    try {
+      if (existing) await api(`/production/equipment/${existing.id}`, { method: 'PATCH', body });
+      else await api('/production/equipment', { method: 'POST', body });
+      closeModal(); showToast(existing ? 'تم الحفظ' : 'تمت الإضافة', 'success'); loadProduction();
+    } catch {}
+  });
+}
+
+/* ============================================================================
+   السلامة والتصاريح (PTW + Near Miss)
+   يطابق استمارتَي "تصريح عمل" (الطلب) و"إجراءات ومتطلبات السلامة" (الاعتماد/
+   الرفض) المعتمدتين بالمصنع: أي فني أو مقاول يستطيع تقديم طلب التصريح، ولا
+   يعتمد أو يرفض التصريح إلا قسم السلامة المهنية.
+============================================================================ */
+async function loadSafety() {
+  const el = document.getElementById('tab-safety');
+  el.innerHTML = `<div class="text-slate-400 text-sm py-10 text-center">جارِ التحميل...</div>`;
+  let permits, nearMiss;
+  try {
+    [permits, nearMiss] = await Promise.all([api('/safety-permits'), api('/near-miss')]);
+  } catch { return; }
+  permits = permits.permits; nearMiss = nearMiss.reports;
+  state.permits = permits;
+  const isSafety = state.user.role === 'admin' || state.user.role === 'safety';
+  const canSeeNearMiss = state.user.role !== 'contractor';
+
+  el.innerHTML = `
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold">تصاريح العمل الآمن (PTW)</h2>
+      <button id="newPermitBtn" class="bg-teal-700 hover:bg-teal-800 text-white text-sm font-semibold px-4 py-2 rounded-lg">+ طلب تصريح</button>
+    </div>
+    <div class="bg-white rounded-2xl shadow-sm overflow-x-auto ${canSeeNearMiss ? 'mb-8' : ''}">
+      <table class="w-full text-sm">
+        <thead><tr class="text-slate-400 text-xs border-b border-slate-100">
+          <th class="text-right p-3">الجهة / الموقع</th><th class="p-3">نوع العمل</th><th class="p-3">الفترة</th>
+          <th class="p-3">الطالب</th><th class="p-3">الحالة</th><th class="p-3"></th>
+        </tr></thead>
+        <tbody>
+          ${permits.map((p) => `
+            <tr class="border-b border-slate-50 hover:bg-slate-50">
+              <td class="p-3"><div class="font-medium">${esc(p.office_name || '—')}</div><div class="text-xs text-slate-400">${esc(p.location)}</div></td>
+              <td class="p-3 text-center">${(p.operation_types || []).map((t) => `<span class="badge bg-slate-100 text-slate-600 mb-1 inline-block">${esc(OPERATION_TYPE_LABELS[t] || t)}</span>`).join(' ') || '—'}</td>
+              <td class="p-3 text-center text-xs whitespace-nowrap">${fmtDate(p.start_at)}${p.end_at ? ' → ' + fmtDate(p.end_at) : ''}</td>
+              <td class="p-3 text-center">${esc(p.requested_by)}</td>
+              <td class="p-3 text-center">${statusBadge(p.status)}</td>
+              <td class="p-3 text-center whitespace-nowrap"><button data-permit-detail="${p.id}" class="text-xs text-teal-700 hover:underline font-semibold">التفاصيل</button></td>
+            </tr>`).join('') || `<tr><td colspan="6" class="p-6 text-center text-slate-400">لا توجد تصاريح</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+
+    ${canSeeNearMiss ? `
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold">بلاغات Near Miss ومخاطر السلامة</h2>
+      <button id="newNearMissBtn" class="bg-teal-700 hover:bg-teal-800 text-white text-sm font-semibold px-4 py-2 rounded-lg">+ بلاغ جديد</button>
+    </div>
+    <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="text-slate-400 text-xs border-b border-slate-100">
+          <th class="text-right p-3">الموقع</th><th class="p-3">نوع الخطر</th><th class="p-3">الوصف</th>
+          <th class="p-3">بواسطة</th><th class="p-3">الحالة</th><th class="p-3"></th>
+        </tr></thead>
+        <tbody>
+          ${nearMiss.map((n) => `
+            <tr class="border-b border-slate-50 hover:bg-slate-50">
+              <td class="p-3 text-center">${esc(n.location)}</td>
+              <td class="p-3 text-center">${esc(n.hazard_type)}</td>
+              <td class="p-3 max-w-xs">${esc(n.description)}</td>
+              <td class="p-3 text-center">${esc(n.reported_by)}</td>
+              <td class="p-3 text-center">${statusBadge(n.status)}</td>
+              <td class="p-3 text-center">
+                ${isSafety && n.status !== 'closed' ? `<select data-nm-status="${n.id}" class="text-xs border border-slate-300 rounded px-2 py-1">
+                  <option value="">تغيير الحالة</option>
+                  <option value="reviewed">تمت المراجعة</option>
+                  <option value="closed">إغلاق</option>
+                </select>` : ''}
+              </td>
+            </tr>`).join('') || `<tr><td colspan="6" class="p-6 text-center text-slate-400">لا توجد بلاغات</td></tr>`}
+        </tbody>
+      </table>
+    </div>` : ''}
+  `;
+
+  document.getElementById('newPermitBtn').addEventListener('click', openPermitModal);
+  document.getElementById('newNearMissBtn')?.addEventListener('click', openNearMissModal);
+  el.querySelectorAll('[data-permit-detail]').forEach((b) => b.addEventListener('click', () => openPermitDetailModal(b.dataset.permitDetail)));
+  el.querySelectorAll('[data-nm-status]').forEach((sel) => sel.addEventListener('change', async () => {
+    if (!sel.value) return;
+    try { await api(`/near-miss/${sel.dataset.nmStatus}/status`, { method: 'PATCH', body: { status: sel.value } }); showToast('تم التحديث', 'success'); loadSafety(); } catch {}
+  }));
+}
+
+// تفاصيل تصريح واحد — تعرض كل بيانات استمارة الطلب، وتضيف لقسم السلامة (فقط)
+// نموذج الاعتماد/الرفض المطابق لاستمارة "إجراءات ومتطلبات السلامة".
+function openPermitDetailModal(id) {
+  const p = (state.permits || []).find((x) => String(x.id) === String(id));
+  if (!p) return;
+  const isSafety = state.user.role === 'admin' || state.user.role === 'safety';
+  const checklistView = (title, values) => `
+    <div><div class="text-slate-400 text-xs mb-1">${title}</div>
+      <div>${(values || []).length ? values.map((v) => `<span class="badge bg-slate-100 text-slate-600 mb-1 inline-block ml-1">${esc(v)}</span>`).join('') : '<span class="text-slate-400 text-xs">—</span>'}</div>
+    </div>`;
+
+  openModal(`
+    <div class="p-6">
+      <div class="flex items-start justify-between mb-1">
+        <h3 class="text-lg font-bold">تصريح عمل #${p.id}</h3>
+        ${statusBadge(p.status)}
+      </div>
+      <div class="grid grid-cols-2 gap-3 text-sm my-4 bg-slate-50 rounded-lg p-3">
+        <div><span class="text-slate-400">الجهة الطالبة:</span> ${esc(p.office_name || '—')}</div>
+        <div><span class="text-slate-400">الموقع:</span> ${esc(p.location)}</div>
+        <div><span class="text-slate-400">من:</span> ${fmtDate(p.start_at)}</div>
+        <div><span class="text-slate-400">إلى:</span> ${fmtDate(p.end_at)}</div>
+        <div><span class="text-slate-400">عدد العمال:</span> ${p.workers_count ?? '—'}</div>
+        <div><span class="text-slate-400">جوال المسؤول:</span> ${esc(p.responsible_phone || '—')}</div>
+        <div class="col-span-2"><span class="text-slate-400">وصف العمل:</span> ${esc(p.description)}</div>
+        <div class="col-span-2">${checklistView('نوع العمل', (p.operation_types || []).map((t) => OPERATION_TYPE_LABELS[t] || t))}</div>
+        ${p.equipment_used ? `<div class="col-span-2"><span class="text-slate-400">المعدات/الأدوات المستخدمة:</span> ${esc(p.equipment_used)}</div>` : ''}
+        <div class="col-span-2"><span class="text-slate-400">مقدَّم من:</span> ${esc(p.requested_by)} — ${fmtDate(p.requested_at)}</div>
+        ${p.equipment_photo ? `<div class="col-span-2"><span class="text-slate-400 block mb-1">صورة المعدات:</span><a href="${p.equipment_photo}" target="_blank"><img src="${p.equipment_photo}" class="rounded-lg max-h-48 border border-slate-200"></a></div>` : ''}
+      </div>
+
+      ${p.status === 'approved' ? `
+        <div class="space-y-2 text-sm bg-emerald-50 rounded-lg p-3 mb-2">
+          ${checklistView('مخاطر الموقع', p.site_hazards)}
+          ${checklistView('المخاطر المحتملة', p.potential_risks)}
+          ${checklistView('معدات الحماية الشخصية المطلوبة', p.ppe_required)}
+          ${p.precautions ? `<div><div class="text-slate-400 text-xs mb-1">إجراءات احترازية</div><div>${esc(p.precautions)}</div></div>` : ''}
+          <div class="text-xs text-slate-400">اعتمده: ${esc(p.reviewed_by || '—')} — ${fmtDate(p.reviewed_at)}</div>
+        </div>
+      ` : ''}
+      ${p.status === 'rejected' ? `
+        <div class="text-sm bg-red-50 rounded-lg p-3 mb-2">
+          <div class="text-slate-500 text-xs mb-1">سبب الرفض</div>
+          <div>${esc(p.rejection_reason || '—')}</div>
+          <div class="text-xs text-slate-400 mt-1">بواسطة: ${esc(p.reviewed_by || '—')} — ${fmtDate(p.reviewed_at)}</div>
+        </div>
+      ` : ''}
+
+      ${isSafety && p.status === 'pending' ? `
+        <form id="permitReviewForm" class="border-t border-slate-100 pt-4 mt-2 space-y-3">
+          <h4 class="font-bold text-sm">إجراءات ومتطلبات السلامة (عند القبول)</h4>
+          <div><div class="text-sm font-medium text-slate-600 mb-1">مخاطر الموقع</div>
+            <div class="flex flex-wrap gap-2">${SITE_HAZARD_OPTIONS.map((h) => `
+              <label class="flex items-center gap-1 text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+                <input type="checkbox" class="pr-hazard" value="${esc(h)}"> ${esc(h)}
+              </label>`).join('')}</div></div>
+          <div><div class="text-sm font-medium text-slate-600 mb-1">المخاطر المحتملة</div>
+            <div class="flex flex-wrap gap-2">${POTENTIAL_RISK_OPTIONS.map((r) => `
+              <label class="flex items-center gap-1 text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+                <input type="checkbox" class="pr-risk" value="${esc(r)}"> ${esc(r)}
+              </label>`).join('')}</div></div>
+          <div><div class="text-sm font-medium text-slate-600 mb-1">معدات الحماية الشخصية المطلوبة</div>
+            <div class="flex flex-wrap gap-2">${PPE_OPTIONS.map((ppe) => `
+              <label class="flex items-center gap-1 text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+                <input type="checkbox" class="pr-ppe" value="${esc(ppe)}"> ${esc(ppe)}
+              </label>`).join('')}</div></div>
+          <div><label class="text-sm font-medium text-slate-600">إجراءات احترازية إضافية</label>
+            <textarea id="prPrecautions" rows="2" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></textarea></div>
+          <div class="flex gap-2 pt-2">
+            <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg">قبول واعتماد التصريح</button>
+            <button type="button" id="permitRejectBtn" class="px-4 py-2.5 rounded-lg bg-red-50 text-red-600 font-semibold">رفض</button>
+          </div>
+          <div id="permitRejectBox" class="hidden space-y-2 pt-2 border-t border-slate-100">
+            <label class="text-sm font-medium text-slate-600">سبب الرفض</label>
+            <textarea id="prRejectReason" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2" placeholder="اذكر سبب الرفض..."></textarea>
+            <button type="button" id="permitRejectConfirm" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-lg">تأكيد الرفض</button>
+          </div>
+        </form>
+      ` : ''}
+    </div>`);
+
+  if (isSafety && p.status === 'pending') {
+    document.getElementById('permitReviewForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await api(`/safety-permits/${p.id}/review`, { method: 'PATCH', body: {
+          approve: true,
+          siteHazards: Array.from(document.querySelectorAll('.pr-hazard:checked')).map((c) => c.value),
+          potentialRisks: Array.from(document.querySelectorAll('.pr-risk:checked')).map((c) => c.value),
+          ppeRequired: Array.from(document.querySelectorAll('.pr-ppe:checked')).map((c) => c.value),
+          precautions: document.getElementById('prPrecautions').value.trim(),
+        } });
+        closeModal(); showToast('تم اعتماد التصريح', 'success'); loadSafety();
+      } catch {}
+    });
+    document.getElementById('permitRejectBtn').addEventListener('click', () => {
+      document.getElementById('permitRejectBox').classList.remove('hidden');
+    });
+    document.getElementById('permitRejectConfirm').addEventListener('click', async () => {
+      const reason = document.getElementById('prRejectReason').value.trim();
+      if (!reason) { showToast('اذكر سبب الرفض', 'error'); return; }
+      try {
+        await api(`/safety-permits/${p.id}/review`, { method: 'PATCH', body: { approve: false, rejectionReason: reason } });
+        closeModal(); showToast('تم رفض التصريح', 'success'); loadSafety();
+      } catch {}
+    });
+  }
+}
+
+// يضغط صورة المعدات في المتصفح قبل رفعها (تصغير الأبعاد + JPEG) حتى تبقى
+// صغيرة بما يكفي لإرسالها كـ base64 ضمن جسم الطلب دون تعديل خادم كامل لرفع
+// ملفات متعددة الأجزاء (multipart) لم يكن موجودًا أصلًا في هذا المشروع.
+function fileToCompressedDataUrl(file, maxDim = 1280, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          const scale = maxDim / Math.max(width, height);
+          width = Math.round(width * scale); height = Math.round(height * scale);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function openPermitModal() {
+  openModal(`
+    <form id="permitForm" class="p-6 space-y-3">
+      <h3 class="text-lg font-bold mb-2">طلب تصريح عمل</h3>
+      <div><label class="text-sm font-medium text-slate-600">اسم الجهة / المكتب الطالب</label>
+        <input id="pOffice" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div><label class="text-sm font-medium text-slate-600">الموقع</label>
+        <input required id="pLocation" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-sm font-medium text-slate-600">من (تاريخ ووقت)</label>
+          <input required type="datetime-local" id="pStart" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="text-sm font-medium text-slate-600">إلى (تاريخ ووقت)</label>
+          <input required type="datetime-local" id="pEnd" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      </div>
+      <div><label class="text-sm font-medium text-slate-600">وصف العمل المطلوب</label>
+        <textarea required id="pDesc" rows="2" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></textarea></div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-sm font-medium text-slate-600">عدد العمال</label>
+          <input type="number" min="1" value="1" id="pWorkers" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="text-sm font-medium text-slate-600">جوال المسؤول عن العمل</label>
+          <input required id="pPhone" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      </div>
+      <div><label class="text-sm font-medium text-slate-600">نوع العمل / الأعمال الخطرة المشمولة</label>
+        <div class="mt-1 flex flex-wrap gap-2">
+          ${Object.keys(OPERATION_TYPE_LABELS).map((k) => `
+            <label class="flex items-center gap-1 text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+              <input type="checkbox" class="p-optype" value="${k}"> ${esc(OPERATION_TYPE_LABELS[k])}
+            </label>`).join('')}
+        </div>
+        <p id="lotoWarning" class="hidden text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-2">
+          ⚠ الأعمال الكهربائية تتطلب تطبيق إجراء عزل الطاقة (LOTO) قبل البدء — تأكد من التنسيق مع قسم الصيانة قبل التنفيذ.
+        </p>
+      </div>
+      <div><label class="text-sm font-medium text-slate-600">المعدات / الأدوات المستخدمة (اختياري)</label>
+        <input id="pEquipUsed" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div><label class="text-sm font-medium text-slate-600">صورة المعدات/الأدوات (إلزامية)</label>
+        <input required id="pPhoto" type="file" accept="image/*" capture="environment" class="mt-1 w-full text-sm">
+        <img id="pPhotoPreview" class="hidden mt-2 rounded-lg max-h-32 border border-slate-200">
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button type="submit" id="pSubmitBtn" class="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg">إرسال الطلب</button>
+        <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-lg bg-slate-100">إلغاء</button>
+      </div>
+    </form>`);
+
+  let photoDataUrl = null;
+  document.querySelectorAll('.p-optype').forEach((c) => c.addEventListener('change', () => {
+    const electrical = document.querySelector('.p-optype[value="electrical"]');
+    document.getElementById('lotoWarning').classList.toggle('hidden', !electrical.checked);
+  }));
+  document.getElementById('pPhoto').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) { photoDataUrl = null; return; }
+    try {
+      photoDataUrl = await fileToCompressedDataUrl(file);
+      const img = document.getElementById('pPhotoPreview');
+      img.src = photoDataUrl; img.classList.remove('hidden');
+    } catch { showToast('تعذّرت قراءة الصورة', 'error'); }
+  });
+
+  document.getElementById('permitForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const operationTypes = Array.from(document.querySelectorAll('.p-optype:checked')).map((c) => c.value);
+    if (operationTypes.length === 0) { showToast('اختر نوع عمل واحدًا على الأقل', 'error'); return; }
+    if (!photoDataUrl) { showToast('صورة المعدات إلزامية', 'error'); return; }
+    const btn = document.getElementById('pSubmitBtn');
+    btn.disabled = true; btn.textContent = 'جارِ الإرسال...';
+    try {
+      await api('/safety-permits', { method: 'POST', body: {
+        officeName: document.getElementById('pOffice').value.trim(),
+        location: document.getElementById('pLocation').value.trim(),
+        description: document.getElementById('pDesc').value.trim(),
+        startAt: document.getElementById('pStart').value || null,
+        endAt: document.getElementById('pEnd').value || null,
+        workersCount: Number(document.getElementById('pWorkers').value) || 1,
+        responsiblePhone: document.getElementById('pPhone').value.trim(),
+        operationTypes,
+        equipmentUsed: document.getElementById('pEquipUsed').value.trim(),
+        equipmentPhoto: photoDataUrl,
+      } });
+      closeModal(); showToast('تم إرسال الطلب، بانتظار اعتماد السلامة', 'success'); loadSafety();
+    } catch {
+      btn.disabled = false; btn.textContent = 'إرسال الطلب';
+    }
+  });
+}
+
+function openNearMissModal() {
+  openModal(`
+    <form id="nmForm" class="p-6 space-y-3">
+      <h3 class="text-lg font-bold mb-2">بلاغ Near Miss / مخاطر</h3>
+      <div><label class="text-sm font-medium text-slate-600">الموقع</label>
+        <input required id="nmLocation" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div><label class="text-sm font-medium text-slate-600">نوع الخطر</label>
+        <input required id="nmHazard" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div><label class="text-sm font-medium text-slate-600">الوصف</label>
+        <textarea required id="nmDesc" rows="3" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></textarea></div>
+      <div class="flex gap-2 pt-2">
+        <button type="submit" class="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg">إرسال البلاغ</button>
+        <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-lg bg-slate-100">إلغاء</button>
+      </div>
+    </form>`);
+  document.getElementById('nmForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await api('/near-miss', { method: 'POST', body: {
+        location: document.getElementById('nmLocation').value.trim(),
+        hazardType: document.getElementById('nmHazard').value.trim(),
+        description: document.getElementById('nmDesc').value.trim(),
+      } });
+      closeModal(); showToast('تم إرسال البلاغ', 'success'); loadSafety();
+    } catch {}
+  });
+}
+
+/* ============================================================================
+   أوامر الصيانة (Work Orders) + تفاصيل + LOTO
+============================================================================ */
+let woStatusFilter = '';
+async function loadWorkOrders() {
+  const el = document.getElementById('tab-workorders');
+  el.innerHTML = `<div class="text-slate-400 text-sm py-10 text-center">جارِ التحميل...</div>`;
+  let orders;
+  try {
+    await ensureLinesAndEquipment();
+    if (state.technicians.length === 0) state.technicians = (await api('/technicians')).technicians;
+    orders = (await api(`/work-orders${woStatusFilter ? `?status=${woStatusFilter}` : ''}`)).workOrders;
+  } catch { return; }
+
+  const canCreate = state.user.role === 'admin' || isMaintenanceRole(state.user.role);
+  el.innerHTML = `
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <h2 class="text-lg font-bold">أوامر الصيانة</h2>
+      <div class="flex items-center gap-2">
+        <select id="woFilter" class="text-sm border border-slate-300 rounded-lg px-3 py-2">
+          <option value="">كل الحالات</option>
+          ${Object.keys(STATUS_LABELS).filter((k) => ['new','pending_assignment','waiting_loto','in_progress','waiting_parts','completed','cancelled'].includes(k)).map((k) => `<option value="${k}" ${woStatusFilter === k ? 'selected' : ''}>${STATUS_LABELS[k][0]}</option>`).join('')}
+        </select>
+        ${canCreate ? `<button id="newWoBtn" class="bg-teal-700 hover:bg-teal-800 text-white text-sm font-semibold px-4 py-2 rounded-lg">+ أمر عمل جديد</button>` : ''}
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="text-slate-400 text-xs border-b border-slate-100">
+          <th class="text-right p-3">الوصف</th><th class="p-3">النوع</th><th class="p-3">الفني</th>
+          <th class="p-3">الخط</th><th class="p-3">الحالة</th><th class="p-3">تاريخ الإنشاء</th><th class="p-3"></th>
+        </tr></thead>
+        <tbody>
+          ${orders.map((o) => `
+            <tr class="border-b border-slate-50 hover:bg-slate-50">
+              <td class="p-3 max-w-xs">${esc(o.description)}</td>
+              <td class="p-3 text-center">${o.kind === 'preventive' ? 'وقائي' : 'طارئ'}</td>
+              <td class="p-3 text-center">${esc(o.technician_name || '—')}</td>
+              <td class="p-3 text-center">${esc(o.line_name || '—')}</td>
+              <td class="p-3 text-center">${statusBadge(o.status)}</td>
+              <td class="p-3 text-center text-xs text-slate-400">${fmtDate(o.created_at)}</td>
+              <td class="p-3 text-center"><button data-open="${o.id}" class="text-xs text-teal-700 hover:underline font-semibold">التفاصيل</button></td>
+            </tr>`).join('') || `<tr><td colspan="7" class="p-6 text-center text-slate-400">لا توجد أوامر عمل</td></tr>`}
+        </tbody>
+      </table>
+    </div>`;
+
+  document.getElementById('woFilter').addEventListener('change', (e) => { woStatusFilter = e.target.value; loadWorkOrders(); });
+  document.getElementById('newWoBtn')?.addEventListener('click', openWorkOrderModal);
+  el.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => openWorkOrderDetail(b.dataset.open)));
+}
+
+function openWorkOrderModal() {
+  openModal(`
+    <form id="woForm" class="p-6 space-y-3">
+      <h3 class="text-lg font-bold mb-2">أمر عمل / صيانة جديد</h3>
+      <div><label class="text-sm font-medium text-slate-600">نوع العمل</label>
+        <select id="woKind" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2">
+          <option value="emergency">طارئ (بلاغ عطل)</option>
+          <option value="preventive">وقائي</option>
+        </select></div>
+      <div><label class="text-sm font-medium text-slate-600">الخط</label>
+        <select id="woLine" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"><option value="">— بدون تحديد —</option>${lineOptions()}</select></div>
+      <div><label class="text-sm font-medium text-slate-600">المعدة</label>
+        <select id="woEquip" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"><option value="">— بدون تحديد —</option>${equipmentOptions()}</select></div>
+      <div><label class="text-sm font-medium text-slate-600">وصف العمل المطلوب</label>
+        <textarea required id="woDesc" rows="3" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></textarea></div>
+      <label class="flex items-center gap-2 text-sm font-medium text-slate-600">
+        <input type="checkbox" id="woLoto"> يتطلب تصريح عزل الطاقة (LOTO) قبل البدء
+      </label>
+      <div class="flex gap-2 pt-2">
+        <button type="submit" class="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg">إنشاء</button>
+        <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-lg bg-slate-100">إلغاء</button>
+      </div>
+    </form>`);
+  document.getElementById('woForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await api('/work-orders', { method: 'POST', body: {
+        kind: document.getElementById('woKind').value,
+        lineId: document.getElementById('woLine').value || null,
+        equipmentId: document.getElementById('woEquip').value || null,
+        description: document.getElementById('woDesc').value.trim(),
+        requiresLoto: document.getElementById('woLoto').checked,
+      } });
+      closeModal(); showToast('تم إنشاء أمر العمل', 'success'); loadWorkOrders();
+    } catch {}
+  });
+}
+
+async function openWorkOrderDetail(id) {
+  let data;
+  try { data = await api(`/work-orders/${id}`); } catch { return; }
+  const wo = data.workOrder;
+  const isMaint = state.user.role === 'admin' || isMaintenanceRole(state.user.role);
+  const isSafety = state.user.role === 'admin' || state.user.role === 'safety';
+
+  openModal(`
+    <div class="p-6">
+      <div class="flex items-start justify-between mb-1">
+        <h3 class="text-lg font-bold">أمر عمل #${wo.id}</h3>
+        ${statusBadge(wo.status)}
+      </div>
+      <p class="text-slate-600 text-sm mb-4">${esc(wo.description)}</p>
+      <div class="grid grid-cols-2 gap-2 text-sm mb-4 bg-slate-50 rounded-lg p-3">
+        <div><span class="text-slate-400">الخط:</span> ${esc(wo.line_name || '—')}</div>
+        <div><span class="text-slate-400">المعدة:</span> ${esc(wo.equipment_name || '—')}</div>
+        <div><span class="text-slate-400">الفني:</span> ${esc(wo.technician_name || '— لم يُعيّن —')}</div>
+        ${wo.assigned_by ? `<div><span class="text-slate-400">عيّنه:</span> ${esc(wo.assigned_by)}</div>` : ''}
+        <div><span class="text-slate-400">النوع:</span> ${wo.kind === 'preventive' ? 'وقائي' : 'طارئ'}</div>
+      </div>
+
+      ${isMaint && !wo.assigned_technician_id && wo.status !== 'completed' && wo.status !== 'cancelled' ? `
+        <div class="mb-4">
+          <label class="text-sm font-medium text-slate-600">تعيين فني</label>
+          <div class="flex gap-2 mt-1">
+            <select id="assignTech" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm">
+              ${state.technicians.filter((t) => t.status === 'available').map((t) => `<option value="${t.id}">${esc(t.name)} (${esc(t.specialty)})</option>`).join('') || '<option value="">لا يوجد فنيون متاحون</option>'}
+            </select>
+            <button id="assignBtn" class="bg-teal-700 hover:bg-teal-800 text-white text-sm font-semibold px-4 rounded-lg">تعيين</button>
+          </div>
+        </div>` : ''}
+
+      ${wo.requires_loto ? `
+        <div class="mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="font-bold text-sm">سجلات عزل الطاقة (LOTO)</h4>
+            ${isMaint || isSafety ? `<button id="addLotoBtn" class="text-xs text-teal-700 font-semibold hover:underline">+ إضافة نقطة عزل</button>` : ''}
+          </div>
+          <div class="space-y-2">
+            ${data.lotoLogs.map((l) => `
+              <div class="border border-slate-200 rounded-lg p-3 text-sm flex items-center justify-between">
+                <div>
+                  <div class="font-medium">${ENERGY_TYPE_LABELS[l.energy_type]} — ${esc(l.isolation_point)}</div>
+                  <div class="text-xs text-slate-400">${statusBadge(l.status)}</div>
+                </div>
+                <div class="flex gap-2">
+                  ${(isMaint || isSafety) && l.status === 'pending' ? `<button data-lock="${l.id}" class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded font-semibold">عزل</button>` : ''}
+                  ${isSafety && l.status === 'locked' ? `<button data-verify="${l.id}" class="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-semibold">تحقق</button>` : ''}
+                  ${(isMaint || isSafety) && l.status === 'verified' ? `<button data-release="${l.id}" class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded font-semibold">رفع العزل</button>` : ''}
+                </div>
+              </div>`).join('') || '<p class="text-slate-400 text-xs">لا توجد نقاط عزل مسجّلة بعد</p>'}
+          </div>
+        </div>` : ''}
+
+      ${data.spareParts.length ? `
+        <div class="mb-4">
+          <h4 class="font-bold text-sm mb-2">قطع الغيار المستخدمة</h4>
+          <table class="w-full text-xs"><tbody>
+            ${data.spareParts.map((p) => `<tr class="border-b border-slate-50"><td class="py-1">${esc(p.part_name)}</td><td class="py-1 text-left">×${p.quantity}</td></tr>`).join('')}
+          </tbody></table>
+        </div>` : ''}
+
+      ${wo.close_description ? `<div class="mb-4 text-sm"><span class="text-slate-400">وصف الإنجاز:</span> ${esc(wo.close_description)}</div>` : ''}
+
+      ${isMaint && ['in_progress', 'waiting_parts'].includes(wo.status) ? `
+        <button id="closeWoBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg mb-2">إنجاز أمر العمل</button>` : ''}
+      ${isMaint && wo.status === 'in_progress' ? `
+        <button id="waitingPartsBtn" class="w-full bg-orange-100 hover:bg-orange-200 text-orange-700 font-semibold py-2.5 rounded-lg mb-2">بانتظار قطع غيار</button>` : ''}
+
+      <button type="button" onclick="closeModal()" class="w-full px-4 py-2.5 rounded-lg bg-slate-100 mt-1">إغلاق</button>
+    </div>`);
+
+  document.getElementById('assignBtn')?.addEventListener('click', async () => {
+    const techId = document.getElementById('assignTech').value;
+    if (!techId) return;
+    try { await api(`/work-orders/${id}/assign`, { method: 'PATCH', body: { technicianId: techId } }); showToast('تم التعيين', 'success'); closeModal(); state.technicians = []; loadWorkOrders(); } catch {}
+  });
+  document.getElementById('addLotoBtn')?.addEventListener('click', () => openLotoModal(id));
+  document.querySelectorAll('[data-lock]').forEach((b) => b.addEventListener('click', async () => { try { await api(`/loto/${b.dataset.lock}/lock`, { method: 'PATCH' }); openWorkOrderDetail(id); } catch {} }));
+  document.querySelectorAll('[data-verify]').forEach((b) => b.addEventListener('click', async () => { try { await api(`/loto/${b.dataset.verify}/verify`, { method: 'PATCH' }); showToast('تم التحقق — قد ينتقل أمر العمل لقيد التنفيذ', 'success'); openWorkOrderDetail(id); } catch {} }));
+  document.querySelectorAll('[data-release]').forEach((b) => b.addEventListener('click', async () => { try { await api(`/loto/${b.dataset.release}/release`, { method: 'PATCH' }); openWorkOrderDetail(id); } catch {} }));
+  document.getElementById('waitingPartsBtn')?.addEventListener('click', async () => {
+    try { await api(`/work-orders/${id}/status`, { method: 'PATCH', body: { status: 'waiting_parts' } }); showToast('تم التحديث', 'success'); closeModal(); loadWorkOrders(); } catch {}
+  });
+  document.getElementById('closeWoBtn')?.addEventListener('click', () => openCloseWorkOrderModal(id));
+}
+
+function openLotoModal(woId) {
+  openModal(`
+    <form id="lotoForm" class="p-6 space-y-3">
+      <h3 class="text-lg font-bold mb-2">إضافة نقطة عزل طاقة</h3>
+      <div><label class="text-sm font-medium text-slate-600">نوع الطاقة</label>
+        <select id="ltEnergy" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2">
+          <option value="electrical">كهربائي</option><option value="hydraulic">هيدروليكي</option>
+          <option value="mechanical">ميكانيكي</option><option value="pneumatic">هوائي</option>
+        </select></div>
+      <div><label class="text-sm font-medium text-slate-600">نقطة العزل</label>
+        <input required id="ltPoint" placeholder="مثال: قاطع رئيسي لوحة ٣" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div class="flex gap-2 pt-2">
+        <button type="submit" class="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg">إضافة</button>
+        <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-lg bg-slate-100">إلغاء</button>
+      </div>
+    </form>`);
+  document.getElementById('lotoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await api('/loto', { method: 'POST', body: { workOrderId: woId, energyType: document.getElementById('ltEnergy').value, isolationPoint: document.getElementById('ltPoint').value.trim() } });
+      openWorkOrderDetail(woId);
+    } catch {}
+  });
+}
+
+function openCloseWorkOrderModal(id) {
+  openModal(`
+    <form id="closeWoForm" class="p-6 space-y-3">
+      <h3 class="text-lg font-bold mb-2">إنجاز أمر العمل</h3>
+      <div><label class="text-sm font-medium text-slate-600">وصف العمل المنجز</label>
+        <textarea required id="closeDesc" rows="3" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></textarea></div>
+      <div>
+        <label class="text-sm font-medium text-slate-600">قطع الغيار المستهلكة (اختياري)</label>
+        <div id="partsRows" class="space-y-2 mt-1"></div>
+        <button type="button" id="addPartRow" class="text-xs text-teal-700 font-semibold hover:underline mt-1">+ إضافة قطعة</button>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg">تأكيد الإنجاز</button>
+        <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-lg bg-slate-100">إلغاء</button>
+      </div>
+    </form>`);
+  const partsRows = document.getElementById('partsRows');
+  function addPartRow() {
+    const row = document.createElement('div');
+    row.className = 'flex gap-2';
+    row.innerHTML = `
+      <input placeholder="اسم القطعة" class="part-name flex-1 border border-slate-300 rounded-lg px-2 py-1.5 text-sm">
+      <input type="number" min="1" value="1" placeholder="الكمية" class="part-qty w-24 border border-slate-300 rounded-lg px-2 py-1.5 text-sm">
+      <button type="button" class="text-red-500 text-xs remove-row">✕</button>`;
+    row.querySelector('.remove-row').addEventListener('click', () => row.remove());
+    partsRows.appendChild(row);
+  }
+  document.getElementById('addPartRow').addEventListener('click', addPartRow);
+  document.getElementById('closeWoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const spareParts = [...partsRows.querySelectorAll('div')].map((row) => ({
+      partName: row.querySelector('.part-name').value.trim(),
+      quantity: Number(row.querySelector('.part-qty').value) || 1,
+    })).filter((p) => p.partName);
+    try {
+      await api(`/work-orders/${id}/close`, { method: 'PATCH', body: { closeDescription: document.getElementById('closeDesc').value.trim(), spareParts } });
+      closeModal(); showToast('تم إنجاز أمر العمل', 'success'); state.technicians = []; loadWorkOrders();
+    } catch {}
+  });
+}
+
+/* ============================================================================
+   إدارة الفنيين
+============================================================================ */
+async function loadTechnicians() {
+  const el = document.getElementById('tab-technicians');
+  el.innerHTML = `<div class="text-slate-400 text-sm py-10 text-center">جارِ التحميل...</div>`;
+  let techs;
+  try { techs = (await api('/technicians')).technicians; state.technicians = techs; } catch { return; }
+  const perf = await Promise.all(techs.map((t) => api(`/technicians/${t.id}/performance`).catch(() => ({ completedCount: 0, avgResolutionMinutes: null }))));
+
+  el.innerHTML = `
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold">الفنيون والمهندسون</h2>
+      <button id="newTechBtn" class="bg-teal-700 hover:bg-teal-800 text-white text-sm font-semibold px-4 py-2 rounded-lg">+ فني جديد</button>
+    </div>
+    <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="text-slate-400 text-xs border-b border-slate-100">
+          <th class="text-right p-3">الاسم</th><th class="p-3">الجوال</th><th class="p-3">التخصص</th>
+          <th class="p-3">الحالة</th><th class="p-3">منجز</th><th class="p-3">متوسط الزمن (د)</th><th class="p-3"></th>
+        </tr></thead>
+        <tbody>
+          ${techs.map((t, i) => `
+            <tr class="border-b border-slate-50 hover:bg-slate-50">
+              <td class="p-3 font-medium">${esc(t.name)}</td>
+              <td class="p-3 text-center">${esc(t.phone || '—')}</td>
+              <td class="p-3 text-center">${esc(t.specialty)}</td>
+              <td class="p-3 text-center">
+                <select data-status="${t.id}" class="text-xs border border-slate-300 rounded px-2 py-1">
+                  <option value="available" ${t.status === 'available' ? 'selected' : ''}>متاح</option>
+                  <option value="busy" ${t.status === 'busy' ? 'selected' : ''}>مشغول</option>
+                  <option value="on_leave" ${t.status === 'on_leave' ? 'selected' : ''}>إجازة</option>
+                </select>
+              </td>
+              <td class="p-3 text-center">${perf[i].completedCount}</td>
+              <td class="p-3 text-center">${perf[i].avgResolutionMinutes ?? '—'}</td>
+              <td class="p-3 text-center"><button data-del="${t.id}" class="text-xs text-red-600 hover:underline">حذف</button></td>
+            </tr>`).join('') || `<tr><td colspan="7" class="p-6 text-center text-slate-400">لا يوجد فنيون بعد</td></tr>`}
+        </tbody>
+      </table>
+    </div>`;
+
+  document.getElementById('newTechBtn').addEventListener('click', openTechnicianModal);
+  el.querySelectorAll('[data-status]').forEach((sel) => sel.addEventListener('change', async () => {
+    try { await api(`/technicians/${sel.dataset.status}`, { method: 'PATCH', body: { status: sel.value } }); showToast('تم التحديث', 'success'); } catch {}
+  }));
+  el.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', async () => {
+    if (!confirm('هل أنت متأكد من حذف هذا الفني؟')) return;
+    try { await api(`/technicians/${b.dataset.del}`, { method: 'DELETE' }); showToast('تم الحذف', 'success'); loadTechnicians(); } catch {}
+  }));
+}
+
+// يجمع كل التخصصات المستخدمة فعليًا حاليًا (من كل الفنيين الموجودين) + القائمة
+// الأساسية، بحيث أي تخصص جديد يُكتب مرة ويُعتمد يصير متاحًا كخيار جاهز لكل
+// فني قادم تلقائيًا — بدون الحاجة لكتابته يدويًا كل مرة.
+function allKnownSpecialties() {
+  const base = ['كهرباء', 'ميكانيكا', 'أتمتة', 'سلامة', 'عام'];
+  const fromTechs = (state.technicians || []).flatMap((t) => String(t.specialty || '').split(/[،,]/)).map((s) => s.trim()).filter(Boolean);
+  return Array.from(new Set([...base, ...fromTechs]));
+}
+
+function openTechnicianModal() {
+  const options = allKnownSpecialties();
+  openModal(`
+    <form id="techForm" class="p-6 space-y-3">
+      <h3 class="text-lg font-bold mb-2">فني جديد</h3>
+      <div><label class="text-sm font-medium text-slate-600">الاسم</label>
+        <input required id="tName" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div><label class="text-sm font-medium text-slate-600">رقم الجوال</label>
+        <input id="tPhone" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div><label class="text-sm font-medium text-slate-600">التخصص (يمكن اختيار أكثر من واحد)</label>
+        <div id="tSpecialtyBoxes" class="mt-1 grid grid-cols-2 gap-2 border border-slate-300 rounded-lg px-3 py-2.5">
+          ${options.map((s) => `
+            <label class="flex items-center gap-1.5 text-sm">
+              <input type="checkbox" class="tSpecialtyBox" value="${esc(s)}"> ${esc(s)}
+            </label>`).join('')}
+        </div>
+        <div class="flex gap-2 mt-2">
+          <input id="tSpecialtyNew" placeholder="تخصص جديد غير موجود بالقائمة" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm">
+          <button type="button" id="tAddSpecialtyBtn" class="text-xs bg-slate-100 hover:bg-slate-200 px-3 rounded-lg font-semibold">إضافة واعتماد</button>
+        </div>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button type="submit" class="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg">إضافة الفني</button>
+        <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-lg bg-slate-100">إلغاء</button>
+      </div>
+    </form>`);
+
+  // "إضافة واعتماد": يضيف تخصص جديد كمربع اختيار محدَّد فورًا داخل نفس النافذة
+  // (بدون إغلاقها) — وبمجرد حفظ الفني بيصير هذا التخصص ضمن القائمة الجاهزة
+  // تلقائيًا لكل فني قادم لاحقًا، لأن القائمة تُبنى من تخصصات الفنيين الفعلية.
+  document.getElementById('tAddSpecialtyBtn').addEventListener('click', () => {
+    const input = document.getElementById('tSpecialtyNew');
+    const val = input.value.trim();
+    if (!val) return;
+    const existing = Array.from(document.querySelectorAll('.tSpecialtyBox')).find((b) => b.value === val);
+    if (existing) { existing.checked = true; input.value = ''; return; }
+    const box = document.getElementById('tSpecialtyBoxes');
+    const label = document.createElement('label');
+    label.className = 'flex items-center gap-1.5 text-sm';
+    label.innerHTML = `<input type="checkbox" class="tSpecialtyBox" value="${esc(val)}" checked> ${esc(val)}`;
+    box.appendChild(label);
+    input.value = '';
+    showToast('تمت إضافة التخصص، وسيبقى ضمن القائمة تلقائيًا بعد حفظ الفني', 'success');
+  });
+
+  document.getElementById('techForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const checked = Array.from(document.querySelectorAll('.tSpecialtyBox:checked')).map((b) => b.value);
+    const specialty = checked.length ? checked.join('، ') : 'عام';
+    try {
+      await api('/technicians', { method: 'POST', body: { name: document.getElementById('tName').value.trim(), phone: document.getElementById('tPhone').value.trim() || null, specialty } });
+      closeModal(); showToast('تمت الإضافة', 'success'); loadTechnicians();
+    } catch {}
+  });
+}
+
+/* ============================================================================
+   التقارير
+============================================================================ */
+function loadReports() {
+  const el = document.getElementById('tab-reports');
+  el.innerHTML = `
+    <h2 class="text-lg font-bold mb-4">تصدير التقارير</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      ${[
+        ['work-orders', 'أوامر الصيانة', 'كل أوامر العمل مع الفني والخط وتواريخ التنفيذ'],
+        ['incidents', 'بلاغات الإنتاج', 'كل بلاغات الأعطال ووقت التوقف'],
+        ['safety-permits', 'تصاريح السلامة', 'كل تصاريح العمل الآمن وحالتها'],
+      ].map(([type, label, desc]) => `
+        <div class="bg-white rounded-2xl shadow-sm p-5">
+          <h3 class="font-bold mb-1">${label}</h3>
+          <p class="text-slate-400 text-xs mb-4">${desc}</p>
+          <div class="flex gap-2">
+            <button data-csv="${type}" class="flex-1 bg-teal-700 hover:bg-teal-800 text-white text-sm font-semibold py-2.5 rounded-lg">تنزيل CSV (Excel)</button>
+            <button data-print="${type}" data-label="${esc(label)}" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold py-2.5 rounded-lg">طباعة / PDF</button>
+          </div>
+        </div>`).join('')}
+    </div>
+    <p class="text-slate-400 text-xs mt-4">"طباعة / PDF" يفتح نسخة منسّقة لصفحة A4 في تبويب جديد — اختر "حفظ كـ PDF" من نافذة الطباعة لحفظه كملف PDF.</p>`;
+  el.querySelectorAll('[data-csv]').forEach((b) => b.addEventListener('click', () => exportCsv(b.dataset.csv)));
+  el.querySelectorAll('[data-print]').forEach((b) => b.addEventListener('click', () => printReport(b.dataset.print, b.dataset.label)));
+}
+
+/// يفكّك نص CSV (بنفس تنسيق toCsv في routes/reports.js) إلى مصفوفة صفوف،
+/// مع مراعاة الحقول المقتبَسة التي قد تحوي فواصل أو علامات اقتباس مضاعفة.
+function parseCsv(text) {
+  text = text.replace(/^﻿/, '');
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; } else { inQuotes = false; }
+      } else field += c;
+    } else if (c === '"') {
+      inQuotes = true;
+    } else if (c === ',') {
+      row.push(field); field = '';
+    } else if (c === '\n') {
+      row.push(field); rows.push(row); row = []; field = '';
+    } else if (c === '\r') {
+      // \r\n — يُعالَج ضمنيًا عبر \n التالية، لا شيء لفعله هنا
+    } else {
+      field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows.filter((r) => !(r.length === 1 && r[0] === ''));
+}
+
+/// يفتح نسخة مطبوعة منسّقة لمقاس A4 من التقرير في تبويب جديد (جدول HTML
+/// مبني من نفس بيانات CSV) — بدون أي حزمة PDF على السيرفر: المتصفح نفسه
+/// يتكفّل بتشكيل الحروف العربية وتحويل الصفحة لـ PDF عبر "طباعة" ← "حفظ كـ PDF".
+function printReport(type, label) {
+  fetch(`${API}/reports/export.csv?type=${type}`, { headers: { Authorization: `Bearer ${state.token}` } })
+    .then((r) => r.text())
+    .then((csvText) => {
+      const rows = parseCsv(csvText);
+      const headerRow = rows[0] || [];
+      const bodyRows = rows.slice(1);
+      const win = window.open('', '_blank');
+      if (!win) { showToast('يرجى السماح بالنوافذ المنبثقة لهذا الموقع لتفعيل الطباعة', 'error'); return; }
+      win.document.write(`<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8">
+        <title>${label}</title>
+        <style>
+          @page { size: A4; margin: 14mm; }
+          * { box-sizing: border-box; }
+          body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; direction: rtl; color: #0f172a; margin: 0; padding: 20px; }
+          h1 { font-size: 18px; margin: 0 0 2px; }
+          .sub { color: #64748b; font-size: 12px; margin-bottom: 16px; }
+          table { width: 100%; border-collapse: collapse; font-size: 11px; }
+          th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: right; }
+          th { background: #f1f5f9; }
+          tr:nth-child(even) td { background: #f8fafc; }
+          .no-print { margin-bottom: 16px; }
+          .no-print button { background: #0f766e; color: #fff; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; }
+          @media print { .no-print { display: none; } }
+        </style></head><body>
+        <div class="no-print"><button onclick="window.print()">طباعة / حفظ PDF</button></div>
+        <h1>${esc(label)}</h1>
+        <div class="sub">${esc(state.settings.factory_name || 'صيانتي')} — ${new Date().toLocaleDateString('ar-EG')}</div>
+        <table>
+          <thead><tr>${headerRow.map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead>
+          <tbody>${bodyRows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${headerRow.length || 1}" style="text-align:center;color:#94a3b8">لا توجد بيانات</td></tr>`}</tbody>
+        </table>
+        </body></html>`);
+      win.document.close();
+    })
+    .catch(() => showToast('تعذّر تجهيز نسخة الطباعة', 'error'));
+}
+
+/* ============================================================================
+   إعدادات الموقع (المدير فقط): بيانات المصنع، الويبهوكس، اعتماد المستخدمين
+============================================================================ */
+function openTempPasswordModal(r) {
+  const waNote = {
+    queued: 'أُرسلت الكلمة أيضًا إلى واتساب المستخدم.',
+    no_phone: 'لا يوجد رقم جوال لهذا المستخدم — أبلغه بالكلمة مباشرة.',
+    skipped: 'لم تُرسَل على واتساب — أبلغه بها مباشرة.',
+  }[r.whatsapp] || '';
+  openModal(`
+    <div class="p-6 text-center">
+      <h3 class="font-bold text-lg mb-1">كلمة مرور مؤقتة</h3>
+      <p class="text-sm text-slate-500 mb-4">${esc(r.user.name)}</p>
+      <div id="tempPwBox" dir="ltr" class="text-2xl font-mono tracking-widest bg-slate-100 rounded-xl py-3 select-all">${esc(r.temporaryPassword)}</div>
+      <p class="text-xs text-slate-500 mt-3">${esc(waNote)}</p>
+      <p class="text-xs text-amber-700 bg-amber-50 rounded-lg p-2 mt-3">تظهر هذه الكلمة هنا مرة واحدة فقط. اطلب منه أن يغيّرها بعد الدخول من «الحساب والأمان» في التطبيق.</p>
+      <div class="flex gap-2 mt-5">
+        <button id="copyTempPw" class="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 rounded-lg text-sm">نسخ الكلمة</button>
+        <button id="closeTempPw" class="flex-1 bg-slate-100 hover:bg-slate-200 font-semibold py-2 rounded-lg text-sm">إغلاق</button>
+      </div>
+    </div>`);
+  document.getElementById('closeTempPw').onclick = closeModal;
+  document.getElementById('copyTempPw').onclick = async () => {
+    try { await navigator.clipboard.writeText(r.temporaryPassword); showToast('تم النسخ', 'success'); }
+    catch { showToast('انسخ الكلمة يدويًا من المربع', 'error'); }
+  };
+}
+
+async function loadSettingsTab() {
+  const el = document.getElementById('tab-settings');
+  el.innerHTML = `<div class="text-slate-400 text-sm py-10 text-center">جارِ التحميل...</div>`;
+  let users, webhooks;
+  try {
+    [users, webhooks] = await Promise.all([api('/users'), api('/webhooks')]);
+  } catch { return; }
+  users = users.users; const wh = webhooks.webhooks; const events = webhooks.availableEvents;
+
+  const pending = users.filter((u) => u.status === 'pending');
+  const others = users.filter((u) => u.status !== 'pending');
+
+  el.innerHTML = `
+    <div class="bg-white rounded-2xl shadow-sm p-5 mb-6">
+      <h3 class="font-bold mb-3">بيانات المصنع</h3>
+      <form id="siteSettingsForm" class="flex flex-col sm:flex-row gap-2">
+        <input id="ssFactoryName" value="${esc(state.settings.factory_name || '')}" placeholder="اسم المصنع" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm">
+        <input id="ssFooter" value="${esc(state.settings.report_footer || '')}" placeholder="تذييل التقارير" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm">
+        <button type="submit" class="bg-teal-700 hover:bg-teal-800 text-white text-sm font-semibold px-4 py-2 rounded-lg">حفظ</button>
+      </form>
+      <div class="mt-3 pt-3 border-t border-slate-100">
+        <label class="text-xs font-semibold text-slate-500 block mb-1">رابط السيرفر العام (لتقارير الإنتاج المرسلة عبر واتساب)</label>
+        <form id="publicUrlForm" class="flex flex-col sm:flex-row gap-2">
+          <input id="ssPublicBaseUrl" value="${esc(state.settings.public_base_url || '')}" placeholder="مثال: https://xxxxx.trycloudflare.com (بدون /api بالنهاية)" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" dir="ltr">
+          <button type="submit" class="bg-teal-700 hover:bg-teal-800 text-white text-sm font-semibold px-4 py-2 rounded-lg">حفظ</button>
+        </form>
+        <p class="text-xs text-slate-400 mt-1">بدون هذا الرابط لن تعمل روابط تقارير الإنتاج (الأسبوعي/الشهري/المخصّص) عند فتحها من خارج شبكة المصنع.</p>
+      </div>
+
+      <div class="mt-3 pt-3 border-t border-slate-100">
+        <label class="text-xs font-semibold text-slate-500 block mb-1">مفتاح TextMeBot (لإرسال روابط تقارير الإنتاج مباشرة على واتساب، بدون أي أتمتة وسيطة)</label>
+        <form id="textmebotKeyForm" class="flex flex-col sm:flex-row gap-2">
+          <input id="ssTextmebotKey" value="${esc(state.settings.textmebot_api_key || '')}" placeholder="apikey من حساب TextMeBot" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" dir="ltr">
+          <button type="submit" class="bg-teal-700 hover:bg-teal-800 text-white text-sm font-semibold px-4 py-2 rounded-lg">حفظ</button>
+        </form>
+        <p class="text-xs text-slate-400 mt-1 mb-2">كل إشعارات النظام (بلاغات الأعطال، الباتشات، أوامر العمل، تصاريح السلامة، Near Miss، والتقارير الأسبوعية/الشهرية) تُرسَل مباشرة لجروب واتساب القسم المعني. أضيفوا معرّف كل جروب هنا (اختياري — أي قسم بلا جروب يُتجاهَل إرساله الجماعي فقط):</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <form data-tmb-group="production_men" class="flex gap-1">
+            <input value="${esc(state.settings.textmebot_group_production_men || '')}" placeholder="جروب إنتاج (رجال) — xxxx@g.us" class="flex-1 border border-slate-300 rounded-lg px-2 py-2 text-xs" dir="ltr">
+            <button type="submit" class="bg-slate-100 hover:bg-slate-200 text-xs font-semibold px-2 rounded-lg">حفظ</button>
+          </form>
+          <form data-tmb-group="production_women" class="flex gap-1">
+            <input value="${esc(state.settings.textmebot_group_production_women || '')}" placeholder="جروب إنتاج (نساء) — xxxx@g.us" class="flex-1 border border-slate-300 rounded-lg px-2 py-2 text-xs" dir="ltr">
+            <button type="submit" class="bg-slate-100 hover:bg-slate-200 text-xs font-semibold px-2 rounded-lg">حفظ</button>
+          </form>
+          <form data-tmb-group="maintenance" class="flex gap-1">
+            <input value="${esc(state.settings.textmebot_group_maintenance || '')}" placeholder="جروب الصيانة — xxxx@g.us" class="flex-1 border border-slate-300 rounded-lg px-2 py-2 text-xs" dir="ltr">
+            <button type="submit" class="bg-slate-100 hover:bg-slate-200 text-xs font-semibold px-2 rounded-lg">حفظ</button>
+          </form>
+          <form data-tmb-group="safety" class="flex gap-1">
+            <input value="${esc(state.settings.textmebot_group_safety || '')}" placeholder="جروب السلامة المهنية — xxxx@g.us" class="flex-1 border border-slate-300 rounded-lg px-2 py-2 text-xs" dir="ltr">
+            <button type="submit" class="bg-slate-100 hover:bg-slate-200 text-xs font-semibold px-2 rounded-lg">حفظ</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm p-5 mb-6">
+      <h3 class="font-bold mb-3">حسابات بانتظار الاعتماد ${pending.length ? `<span class="badge bg-amber-100 text-amber-700">${pending.length}</span>` : ''}</h3>
+      ${pending.length ? `<div class="space-y-2">
+        ${pending.map((u) => `
+          <div class="flex flex-wrap items-center justify-between gap-2 border border-slate-100 rounded-lg p-3">
+            <div><div class="font-medium text-sm">${esc(u.name)}</div><div class="text-xs text-slate-400">${esc(userContactLine(u))}</div></div>
+            <div class="flex items-center gap-2">
+              <select id="role-${u.id}" data-pending-role="${u.id}" class="text-xs border border-slate-300 rounded px-2 py-1.5">
+                <option value="production">إنتاج</option>
+                <option value="maintenance_technician">فني صيانة</option>
+                <option value="maintenance_manager">مسؤول صيانة</option>
+                <option value="safety">سلامة مهنية</option><option value="contractor">مقاول خارجي</option><option value="admin">مدير نظام</option>
+              </select>
+              <select id="facility-${u.id}" class="text-xs border border-slate-300 rounded px-2 py-1.5">
+                <option value="">بلا تقييد (كل المصانع)</option>
+                <option value="مصنع الرجال">مصنع الرجال</option>
+                <option value="مصنع النساء">مصنع النساء</option>
+              </select>
+              <button data-approve-user="${u.id}" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3 py-1.5 rounded-lg">اعتماد</button>
+              <button data-reject-user="${u.id}" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 font-semibold px-3 py-1.5 rounded-lg">رفض</button>
+            </div>
+          </div>`).join('')}
+      </div>` : `<p class="text-slate-400 text-sm">لا توجد حسابات بانتظار الاعتماد</p>`}
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm p-5 mb-6">
+      <h3 class="font-bold mb-3">كل المستخدمين</h3>
+      <table class="w-full text-sm">
+        <thead><tr class="text-slate-400 text-xs border-b border-slate-100"><th class="text-right p-2">الاسم</th><th class="p-2">البريد</th><th class="p-2">الجوال</th><th class="p-2">الدور</th><th class="p-2">الحالة</th><th class="p-2"></th></tr></thead>
+        <tbody>
+          ${others.map((u) => `
+            <tr class="border-b border-slate-50">
+              <td class="p-2 font-medium">${esc(u.name)}</td>
+              <td class="p-2 text-center text-xs text-slate-400">${PHONE_EMAIL_RE.test(u.email || '') ? 'جوال فقط' : esc(u.email)}</td>
+              <td class="p-2 text-center">
+                <input data-phone="${u.id}" value="${esc(u.phone || '')}" placeholder="05xxxxxxxx" class="text-xs border border-slate-300 rounded px-2 py-1 w-28">
+              </td>
+              <td class="p-2 text-center">
+                <select data-role="${u.id}" class="text-xs border border-slate-300 rounded px-2 py-1">
+                  ${['production','maintenance_technician','maintenance_manager','safety','contractor','admin'].map((r) => `<option value="${r}" ${u.role === r ? 'selected' : ''}>${ROLE_LABELS[r]}</option>`).join('')}
+                </select>
+                ${u.role === 'production' ? `<select data-facility="${u.id}" class="text-xs border border-slate-300 rounded px-2 py-1 mt-1">
+                  <option value="" ${!u.production_facility ? 'selected' : ''}>بلا تقييد (كل المصانع)</option>
+                  <option value="مصنع الرجال" ${u.production_facility === 'مصنع الرجال' ? 'selected' : ''}>مصنع الرجال</option>
+                  <option value="مصنع النساء" ${u.production_facility === 'مصنع النساء' ? 'selected' : ''}>مصنع النساء</option>
+                </select>` : ''}
+              </td>
+              <td class="p-2 text-center">${statusBadge(u.status)}</td>
+              <td class="p-2 text-center">
+                ${u.status === 'approved' && String(u.id) !== String(state.user.id) && (u.role !== 'admin' || state.user.role === 'admin') ? `<button data-reset-pw="${u.id}" data-name="${esc(u.name)}" class="text-xs text-teal-700 hover:underline block mx-auto mb-1">كلمة مرور مؤقتة</button>` : ''}
+                ${u.status === 'approved' ? `<button data-revoke="${u.id}" class="text-xs text-red-600 hover:underline">إلغاء الاعتماد</button>` : ''}
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold">Webhooks / تكامل واتساب</h3>
+        <button id="newWebhookBtn" class="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg font-semibold">+ إضافة Webhook</button>
+      </div>
+      <div class="space-y-2">
+        ${wh.map((w) => `
+          <div class="flex flex-wrap items-center justify-between gap-2 border border-slate-100 rounded-lg p-3 text-sm">
+            <div>
+              <div class="font-medium">${esc(w.name)} ${w.enabled ? '' : '<span class="text-xs text-slate-400">(معطّل)</span>'}
+                ${w.facility ? `<span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">${esc(w.facility)}</span>` : ''}
+                ${w.message_template ? `<span class="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">نص مخصّص</span>` : ''}
+              </div>
+              <div class="text-xs text-slate-400">${esc(w.url)} — ${esc(w.event_type)}</div>
+            </div>
+            <div class="flex gap-2">
+              <button data-edit-wh="${w.id}" class="text-xs bg-slate-100 px-2 py-1 rounded font-semibold">تعديل</button>
+              <button data-test-wh="${w.id}" class="text-xs bg-slate-100 px-2 py-1 rounded font-semibold">اختبار</button>
+              <button data-toggle-wh="${w.id}" data-enabled="${w.enabled}" class="text-xs bg-slate-100 px-2 py-1 rounded font-semibold">${w.enabled ? 'تعطيل' : 'تفعيل'}</button>
+              <button data-del-wh="${w.id}" class="text-xs text-red-600 px-2 py-1">حذف</button>
+            </div>
+          </div>`).join('') || '<p class="text-slate-400 text-sm">لا توجد Webhooks بعد</p>'}
+      </div>
+    </div>`;
+
+  document.getElementById('siteSettingsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await api('/settings/factory_name', { method: 'PUT', body: { value: document.getElementById('ssFactoryName').value.trim() } });
+      await api('/settings/report_footer', { method: 'PUT', body: { value: document.getElementById('ssFooter').value.trim() } });
+      showToast('تم الحفظ', 'success');
+      const { settings } = await api('/settings'); state.settings = settings;
+      document.getElementById('factoryNameLabel').textContent = settings.factory_name || 'صيانتي';
+    } catch {}
+  });
+  document.getElementById('publicUrlForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await api('/settings/public_base_url', { method: 'PUT', body: { value: document.getElementById('ssPublicBaseUrl').value.trim() } });
+      showToast('تم الحفظ', 'success');
+      const { settings } = await api('/settings'); state.settings = settings;
+    } catch {}
+  });
+  document.getElementById('textmebotKeyForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await api('/settings/textmebot_api_key', { method: 'PUT', body: { value: document.getElementById('ssTextmebotKey').value.trim() } });
+      showToast('تم الحفظ', 'success');
+      const { settings } = await api('/settings'); state.settings = settings;
+    } catch {}
+  });
+  el.querySelectorAll('[data-tmb-group]').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await api(`/settings/textmebot_group_${form.dataset.tmbGroup}`, { method: 'PUT', body: { value: form.querySelector('input').value.trim() } });
+        showToast('تم الحفظ', 'success');
+        const { settings } = await api('/settings'); state.settings = settings;
+      } catch {}
+    });
+  });
+  el.querySelectorAll('[data-pending-role]').forEach((sel) => {
+    const facilitySel = document.getElementById(`facility-${sel.dataset.pendingRole}`);
+    if (!facilitySel) return;
+    const sync = () => { facilitySel.style.display = sel.value === 'production' ? '' : 'none'; };
+    sync();
+    sel.addEventListener('change', sync);
+  });
+  el.querySelectorAll('[data-approve-user]').forEach((b) => b.addEventListener('click', async () => {
+    const uid = b.dataset.approveUser;
+    const role = document.getElementById(`role-${uid}`).value;
+    const facilityEl = document.getElementById(`facility-${uid}`);
+    const facility = role === 'production' && facilityEl ? facilityEl.value : '';
+    try {
+      await api(`/users/${uid}/approve`, { method: 'PATCH', body: { role } });
+      if (role === 'production' && facility) {
+        await api(`/users/${uid}/production-facility`, { method: 'PATCH', body: { facility } });
+      }
+      showToast('تم الاعتماد', 'success');
+      loadSettingsTab();
+    } catch {}
+  }));
+  el.querySelectorAll('[data-reject-user]').forEach((b) => b.addEventListener('click', async () => {
+    if (!confirm('هل تريد رفض وحذف طلب هذا الحساب؟')) return;
+    try { await api(`/users/${b.dataset.rejectUser}`, { method: 'DELETE' }); showToast('تم الحذف', 'success'); loadSettingsTab(); } catch {}
+  }));
+  el.querySelectorAll('[data-role]').forEach((sel) => sel.addEventListener('change', async () => {
+    try { await api(`/users/${sel.dataset.role}/role`, { method: 'PATCH', body: { role: sel.value } }); showToast('تم تحديث الدور', 'success'); loadSettingsTab(); } catch {}
+  }));
+  el.querySelectorAll('[data-facility]').forEach((sel) => sel.addEventListener('change', async () => {
+    try { await api(`/users/${sel.dataset.facility}/production-facility`, { method: 'PATCH', body: { facility: sel.value || null } }); showToast('تم تحديث المصنع', 'success'); } catch {}
+  }));
+  el.querySelectorAll('[data-phone]').forEach((input) => input.addEventListener('change', async () => {
+    try { await api(`/users/${input.dataset.phone}/phone`, { method: 'PATCH', body: { phone: input.value.trim() || null } }); showToast('تم تحديث رقم الجوال', 'success'); } catch {}
+  }));
+  el.querySelectorAll('[data-reset-pw]').forEach((b) => b.addEventListener('click', async () => {
+    if (!confirm(`سيتم تعيين كلمة مرور مؤقتة جديدة للمستخدم «${b.dataset.name}» وتتوقف كلمة مروره القديمة عن العمل. المتابعة؟`)) return;
+    try {
+      const r = await api(`/users/${b.dataset.resetPw}/reset-password`, { method: 'PATCH', body: {} });
+      openTempPasswordModal(r);
+    } catch {}
+  }));
+  el.querySelectorAll('[data-revoke]').forEach((b) => b.addEventListener('click', async () => {
+    if (!confirm('هل تريد إلغاء اعتماد هذا المستخدم؟')) return;
+    try { await api(`/users/${b.dataset.revoke}/revoke`, { method: 'PATCH' }); showToast('تم إلغاء الاعتماد', 'success'); loadSettingsTab(); } catch {}
+  }));
+  document.getElementById('newWebhookBtn').addEventListener('click', () => openWebhookModal(events));
+  el.querySelectorAll('[data-edit-wh]').forEach((b) => b.addEventListener('click', () => {
+    const existing = wh.find((w) => String(w.id) === String(b.dataset.editWh));
+    if (existing) openWebhookModal(events, existing);
+  }));
+  el.querySelectorAll('[data-test-wh]').forEach((b) => b.addEventListener('click', async () => {
+    try { const r = await api(`/webhooks/${b.dataset.testWh}/test`, { method: 'POST' }); showToast(r.ok ? `نجح الاختبار (HTTP ${r.statusCode})` : `فشل: ${r.error}`, r.ok ? 'success' : 'error'); } catch {}
+  }));
+  el.querySelectorAll('[data-toggle-wh]').forEach((b) => b.addEventListener('click', async () => {
+    try { await api(`/webhooks/${b.dataset.toggleWh}`, { method: 'PATCH', body: { enabled: b.dataset.enabled !== 'true' } }); loadSettingsTab(); } catch {}
+  }));
+  el.querySelectorAll('[data-del-wh]').forEach((b) => b.addEventListener('click', async () => {
+    if (!confirm('هل تريد حذف هذا الـ Webhook؟')) return;
+    try { await api(`/webhooks/${b.dataset.delWh}`, { method: 'DELETE' }); showToast('تم الحذف', 'success'); loadSettingsTab(); } catch {}
+  }));
+}
+
+function openWebhookModal(events, existing) {
+  const EVENT_LABELS = {
+    incident_created: 'بلاغ عطل جديد', work_order_created: 'بلاغ عطل صيانة جديد (أمر عمل)',
+    work_order_assigned: 'تعيين فني لأمر عمل', work_order_completed: 'إنجاز أمر عمل',
+    safety_permit_requested: 'طلب تصريح سلامة', safety_permit_reviewed: 'مراجعة تصريح سلامة', near_miss_reported: 'بلاغ Near Miss',
+    batch_recorded: 'تسجيل باتش إنتاج جديد',
+    production_report_custom: 'تقرير إنتاج بمدة مخصّصة (طلب فرد)',
+    production_report_weekly: 'تقرير إنتاج أسبوعي (تلقائي)',
+    production_report_monthly: 'تقرير إنتاج شهري (تلقائي)',
+    maintenance_report_custom: 'تقرير صيانة بمدة مخصّصة (طلب فرد)',
+    maintenance_report_monthly: 'تقرير صيانة شهري (تلقائي)',
+    maintenance_report_yearly: 'تقرير صيانة سنوي (تلقائي)',
+  };
+  // الحقول المتاحة لكل نوع حدث داخل {{...}} في نص الرسالة — القيم الخام من
+  // صف قاعدة البيانات نفسه (راجع fireWebhook في services/webhooks.js).
+  const EVENT_FIELDS = {
+    incident_created: ['description', 'reported_by', 'facility', 'status'],
+    work_order_created: ['description', 'kind', 'equipment_name', 'facility', 'created_by'],
+    work_order_assigned: ['description', 'kind', 'status', 'created_by'],
+    work_order_completed: ['description', 'kind', 'status', 'created_by'],
+    safety_permit_requested: ['location', 'description', 'requested_by', 'workers_count'],
+    safety_permit_reviewed: ['location', 'description', 'status', 'rejection_reason'],
+    near_miss_reported: ['location', 'hazard_type', 'description', 'reported_by'],
+    batch_recorded: ['batch_number', 'product_name', 'quantity', 'line_name', 'facility', 'recorded_by'],
+    production_report_custom: ['facility', 'report_url', 'requested_by_phone', 'requested_by_name', 'total_quantity', 'batch_count'],
+    production_report_weekly: ['facility', 'report_url', 'total_quantity', 'batch_count'],
+    production_report_monthly: ['facility', 'report_url', 'total_quantity', 'batch_count'],
+    maintenance_report_custom: ['report_url', 'requested_by_phone', 'requested_by_name', 'total_count'],
+    maintenance_report_monthly: ['report_url', 'total_count'],
+    maintenance_report_yearly: ['report_url', 'total_count'],
+  };
+  const isEdit = !!existing;
+
+  openModal(`
+    <form id="whForm" class="p-6 space-y-3">
+      <h3 class="text-lg font-bold mb-2">${isEdit ? 'تعديل Webhook' : 'Webhook جديد'}</h3>
+      <div><label class="text-sm font-medium text-slate-600">الاسم</label>
+        <input required id="whName" value="${existing ? esc(existing.name) : ''}" placeholder="مثال: تنبيه واتساب" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div><label class="text-sm font-medium text-slate-600">رابط الـ Webhook (URL)</label>
+        <input required type="url" id="whUrl" value="${existing ? esc(existing.url) : ''}" placeholder="https://..." class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      <div><label class="text-sm font-medium text-slate-600">الحدث</label>
+        <select id="whEvent" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2">
+          ${events.map((e) => `<option value="${e}" ${existing && existing.event_type === e ? 'selected' : ''}>${EVENT_LABELS[e] || e}</option>`).join('')}
+        </select></div>
+      <div id="whFacilityWrap"><label class="text-sm font-medium text-slate-600">المصنع (اختياري)</label>
+        <select id="whFacility" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2">
+          <option value="">كل المصانع (بلا تقييد)</option>
+          <option value="مصنع الرجال" ${existing && existing.facility === 'مصنع الرجال' ? 'selected' : ''}>مصنع الرجال</option>
+          <option value="مصنع النساء" ${existing && existing.facility === 'مصنع النساء' ? 'selected' : ''}>مصنع النساء</option>
+        </select>
+        <p class="text-xs text-slate-400 mt-1">إن حدّدت مصنعًا، لن تصل هذه الرسالة إلا عند حدث تابع لهذا المصنع تحديدًا (بلاغات الإنتاج فقط حاليًا).</p></div>
+      <div><label class="text-sm font-medium text-slate-600">نص الرسالة (اختياري)</label>
+        <textarea id="whTemplate" rows="3" placeholder="مثال: بلاغ عطل جديد: {{description}} — بواسطة {{reported_by}}" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">${existing && existing.message_template ? esc(existing.message_template) : ''}</textarea>
+        <p id="whFieldsHint" class="text-xs text-slate-400 mt-1"></p></div>
+      <div class="flex gap-2 pt-2">
+        <button type="submit" class="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg">${isEdit ? 'حفظ التعديلات' : 'إضافة'}</button>
+        <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-lg bg-slate-100">إلغاء</button>
+      </div>
+    </form>`);
+
+  const eventSel = document.getElementById('whEvent');
+  const facilityWrap = document.getElementById('whFacilityWrap');
+  const fieldsHint = document.getElementById('whFieldsHint');
+  const syncEvent = () => {
+    facilityWrap.style.display = eventSel.value === 'incident_created' ? '' : 'none';
+    const fields = EVENT_FIELDS[eventSel.value] || [];
+    fieldsHint.textContent = fields.length ? `الحقول المتاحة: ${fields.map((f) => `{{${f}}}`).join(' ')}` : '';
+  };
+  syncEvent();
+  eventSel.addEventListener('change', syncEvent);
+
+  document.getElementById('whForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = {
+      name: document.getElementById('whName').value.trim(),
+      url: document.getElementById('whUrl').value.trim(),
+      eventType: eventSel.value,
+      facility: eventSel.value === 'incident_created' ? (document.getElementById('whFacility').value || null) : null,
+      messageTemplate: document.getElementById('whTemplate').value.trim() || null,
+    };
+    try {
+      if (isEdit) {
+        await api(`/webhooks/${existing.id}`, { method: 'PATCH', body });
+      } else {
+        await api('/webhooks', { method: 'POST', body });
+      }
+      closeModal(); showToast(isEdit ? 'تم الحفظ' : 'تمت الإضافة', 'success'); loadSettingsTab();
+    } catch {}
+  });
+}
+
+/* ============================================================================
+   بدء التشغيل
+============================================================================ */
+route();
+</script>
+</body>
+</html>

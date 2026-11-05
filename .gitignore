@@ -1,0 +1,42 @@
+# ملف تجاهل Git لمستودع خادم «صيانتي».
+# المستودع عام (Public) — لذلك لا يُرفع فيه أي سر ولا بيانات موظفين ولا ملفات عمل خاصة.
+
+# ---- أسرار الإعداد (كلمة سر القاعدة وJWT) ----
+.env
+.env.*
+!.env.example
+
+# ---- مفاتيح Firebase وأي ملف مفاتيح (بأي اسم) ----
+firebase-service-account*.json
+firebase-service-account*.json.json
+config/firebase-service-account*.json
+*service-account*.json
+*.pem
+*.key
+
+# ---- حزم Node (تُعاد بـ npm install من package-lock.json) ----
+node_modules/
+
+# ---- سجلات الخدمة (قد تحوي تفاصيل داخلية) ----
+*.log
+
+# ---- ملفات يرفعها المستخدمون (صور بلاغات وتصاريح) ----
+public/uploads/
+public-app/uploads/
+
+# ---- نسخة الويب المبنية للتطبيق: تُبنى تلقائيًا من مستودع التطبيق عبر GitHub Actions ----
+public-app/
+
+# ---- بيانات موظفين وتقارير تشغيلية (بيانات شخصية) ----
+services/leaveSeedData.js
+seed-leaves.js
+seed-leaves-report.txt
+duplicate-phones-report.txt
+recover-line-backup-*.json
+recover-line-report.txt
+
+# ---- نسخ احتياطية وملفات عمل خاصة ----
+backup-before-*/
+Claude outputs/
+handoff-to-mas/
+*.zip

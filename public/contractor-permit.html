@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1A2129">
+<title>طلب تصريح عمل — مصنع الماس الوطنية</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #1A2129;
+    --ink-soft: #4A5564;
+    --muted: #5F6B7A;
+    --line: #D9DEE5;
+    --field: #FFFFFF;
+    --ground: #F3F4F6;
+    --amber: #FEBD10;
+    --amber-deep: #7A5100;
+    --amber-wash: #FFF6DB;
+    --ok: #1F7A3D;
+    --ok-wash: #E6F4EA;
+    --bad: #B3261E;
+    --bad-wash: #FDECEA;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, "Noto Sans Arabic", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .tape {
+    height: 10px;
+    background: repeating-linear-gradient(-45deg, var(--amber) 0 14px, var(--ink) 14px 28px);
+  }
+  header {
+    background: var(--ink);
+    color: #fff;
+    padding: 22px 16px 24px;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  header .factory { margin: 0 0 4px; font-size: 14px; color: #C9D0DA; }
+  header h1 { margin: 0 0 8px; font-size: 26px; line-height: 1.3; text-wrap: balance; }
+  header p { margin: 0; color: #DCE1E8; font-size: 15px; max-width: 46ch; }
+
+  main { padding: 16px 16px 120px; }
+  .card {
+    background: var(--field);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 16px;
+    margin-bottom: 14px;
+  }
+  .card h2 { margin: 0 0 14px; font-size: 17px; }
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  label, .label { display: block; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+  .req { color: var(--bad); margin-inline-start: 2px; }
+  .opt { color: var(--muted); font-weight: 400; font-size: 13px; margin-inline-start: 4px; }
+  .hint { margin: 6px 0 0; font-size: 13.5px; color: var(--muted); }
+
+  input[type=text], input[type=tel], input[type=number], input[type=datetime-local], textarea {
+    width: 100%;
+    min-height: 50px;
+    padding: 12px 14px;
+    font: inherit;
+    font-size: 16px; /* 16px يمنع تكبير الصفحة تلقائيًا في آيفون */
+    color: var(--ink);
+    background: var(--field);
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius);
+    appearance: none;
+  }
+  textarea { min-height: 112px; resize: vertical; }
+  input[type=tel] { direction: ltr; text-align: right; }
+  input::placeholder, textarea::placeholder { color: #8B95A3; }
+  input:focus-visible, textarea:focus-visible, button:focus-visible,
+  .chip input:focus-visible + span, .seg input:focus-visible + span, .photo:focus-visible {
+    outline: 3px solid var(--amber);
+    outline-offset: 2px;
+    border-color: var(--ink);
+  }
+  .invalid input[type=text], .invalid input[type=tel], .invalid textarea, .invalid .photo { border-color: var(--bad); }
+  .msg-bad { display: none; margin: 6px 0 0; font-size: 13.5px; color: var(--bad); font-weight: 600; }
+  .invalid .msg-bad { display: block; }
+
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .seg label { margin: 0; }
+  .seg input, .chip input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg span {
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    min-height: 54px; padding: 8px 6px;
+    font-size: 15px; font-weight: 600; line-height: 1.3;
+    border: 1.5px solid var(--line); border-radius: var(--radius); background: var(--field);
+  }
+  .seg input:checked + span { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { position: relative; margin: 0; }
+  .chip span {
+    display: inline-flex; align-items: center; min-height: 46px; padding: 8px 16px;
+    font-size: 15px; font-weight: 500;
+    border: 1.5px solid var(--line); border-radius: 999px; background: var(--field);
+  }
+  .chip input:checked + span { background: var(--amber); border-color: var(--amber); color: var(--ink); font-weight: 700; }
+  .chip input:checked + span::before { content: "✓"; margin-inline-end: 6px; font-weight: 800; }
+
+  .row2 { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media (min-width: 520px) { .row2 { grid-template-columns: 1fr 1fr; } }
+
+  .stepper { display: flex; align-items: stretch; gap: 8px; }
+  .stepper button {
+    width: 52px; min-height: 50px; font-size: 24px; font-weight: 700; line-height: 1;
+    background: var(--field); color: var(--ink);
+    border: 1.5px solid var(--line); border-radius: var(--radius); cursor: pointer;
+  }
+  .stepper input { text-align: center; direction: ltr; }
+
+  .photo {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; min-height: 150px; padding: 14px; text-align: center; cursor: pointer;
+    background: #FAFBFC; color: var(--ink-soft); font: inherit; font-weight: 600;
+    border: 2px dashed #B9C1CC; border-radius: 14px; overflow: hidden;
+  }
+  .photo svg { width: 34px; height: 34px; stroke: var(--ink-soft); }
+  .photo.has { border-style: solid; border-color: var(--ok); padding: 0; position: relative; min-height: 190px; }
+  .photo img { display: block; width: 100%; height: 190px; object-fit: cover; }
+  .photo .swap {
+    position: absolute; inset-inline-start: 10px; bottom: 10px;
+    background: rgba(26,33,41,.82); color: #fff; font-size: 13.5px; padding: 6px 12px; border-radius: 999px;
+  }
+  #photoInput { display: none; }
+
+  .notice {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: var(--amber-wash); color: var(--amber-deep);
+    border-radius: var(--radius); padding: 12px 14px; font-size: 14.5px; font-weight: 600;
+  }
+  .notice svg { flex: none; width: 22px; height: 22px; margin-top: 2px; }
+
+  .error-banner {
+    display: none; margin-bottom: 14px; padding: 12px 14px; border-radius: var(--radius);
+    background: var(--bad-wash); color: var(--bad); font-weight: 700; font-size: 15px;
+  }
+  .error-banner.show { display: block; }
+
+  .bar {
+    position: fixed; inset-inline: 0; bottom: 0; z-index: 5;
+    background: rgba(255,255,255,.96); border-top: 1px solid var(--line);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+  .bar .wrap { display: block; }
+  .submit {
+    width: 100%; min-height: 54px; font: inherit; font-size: 17px; font-weight: 800;
+    color: var(--ink); background: var(--amber);
+    border: 0; border-radius: var(--radius); cursor: pointer;
+  }
+  .submit:disabled { background: #E4E7EC; color: #7C8696; cursor: default; }
+
+  .done { display: none; padding: 28px 16px 40px; }
+  .done .card { text-align: center; padding: 28px 18px; }
+  .done .check {
+    width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 50%;
+    background: var(--ok-wash); display: grid; place-items: center;
+  }
+  .done .check svg { width: 34px; height: 34px; stroke: var(--ok); }
+  .done h2 { margin: 0 0 6px; font-size: 22px; }
+  .done .num-label { margin: 18px 0 2px; color: var(--muted); font-size: 14px; }
+  .done .num {
+    display: inline-block; min-width: 120px; padding: 6px 22px; margin: 0 0 18px;
+    font-size: 40px; font-weight: 800; line-height: 1.3; letter-spacing: 1px;
+    font-variant-numeric: tabular-nums; direction: ltr;
+    background: var(--amber-wash); border-radius: var(--radius);
+  }
+  .done p { margin: 0 0 10px; color: var(--ink-soft); }
+  .done .phone { font-weight: 800; color: var(--ink); direction: ltr; unicode-bidi: embed; }
+  .done .notice { text-align: start; margin: 16px 0 18px; }
+  .again {
+    min-height: 50px; padding: 0 22px; font: inherit; font-weight: 700; color: var(--ink);
+    background: var(--field); border: 1.5px solid var(--ink); border-radius: var(--radius); cursor: pointer;
+  }
+
+  .hp { position: absolute; inset-inline-start: -9999px; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+  body.is-done header + main, body.is-done .bar, body.is-done header p:not(.factory) { display: none; }
+  body.is-done .done { display: block; }
+  @media (prefers-reduced-motion: no-preference) {
+    .submit, .chip span, .seg span { transition: background-color .15s, border-color .15s; }
+  }
+</style>
+</head>
+<body>
+<div class="tape" aria-hidden="true"></div>
+<header>
+  <div class="wrap">
+    <p class="factory">مصنع الماس الوطنية — للمقاولين والجهات الخارجية</p>
+    <h1>طلب تصريح عمل</h1>
+    <p>عبّئ البيانات أدناه وأرسل الطلب. سيراجعه قسم السلامة، ويصلك الرد (قبول أو رفض) على رقم الواتساب الذي تكتبه.</p>
+  </div>
+</header>
+
+<main>
+  <form id="form" class="wrap" novalidate autocomplete="on">
+    <div id="errorBanner" class="error-banner" role="alert" aria-live="assertive"></div>
+
+    <section class="card">
+      <h2>بيانات الجهة والمسؤول</h2>
+      <div class="field" data-field="company">
+        <label for="company">اسم الشركة أو المؤسسة<span class="req">*</span></label>
+        <input id="company" name="company" type="text" maxlength="120" autocomplete="organization" placeholder="مثال: مؤسسة الأمان للمقاولات">
+        <p class="msg-bad">اكتب اسم الشركة أو المؤسسة</p>
+      </div>
+      <div class="field" data-field="name">
+        <label for="name">اسم المسؤول عن العمل<span class="req">*</span></label>
+        <input id="name" name="name" type="text" maxlength="80" autocomplete="name" placeholder="الاسم الثلاثي">
+        <p class="msg-bad">اكتب اسم المسؤول (٣ أحرف على الأقل)</p>
+      </div>
+      <div class="field" data-field="phone">
+        <label for="phone">رقم جوال المسؤول (واتساب)<span class="req">*</span></label>
+        <input id="phone" name="phone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="05xxxxxxxx">
+        <p class="hint">سيصلك الرد على هذا الرقم عبر واتساب — تأكد أنه صحيح ومفعّل عليه واتساب.</p>
+        <p class="msg-bad">اكتب رقم جوال سعودي صحيح يبدأ بـ 05</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>موقع العمل</h2>
+      <div class="field" data-field="location">
+        <span class="label" id="locLabel">الموقع<span class="req">*</span></span>
+        <div class="seg" role="radiogroup" aria-labelledby="locLabel">
+          <label><input type="radio" name="location" value="مصنع الرجال"><span>مصنع الرجال</span></label>
+          <label><input type="radio" name="location" value="مصنع النساء"><span>مصنع النساء</span></label>
+          <label><input type="radio" name="location" value="المستودع العام"><span>المستودع العام</span></label>
+        </div>
+        <p class="msg-bad">اختر موقع العمل</p>
+      </div>
+      <div class="field">
+        <label for="locationDetail">تفاصيل الموقع<span class="opt">(اختياري)</span></label>
+        <input id="locationDetail" name="locationDetail" type="text" maxlength="150" placeholder="مثال: خط ٩ — بجوار ماكينة الخلط">
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>تفاصيل العمل</h2>
+      <div class="field" data-field="description">
+        <label for="description">وصف العمل<span class="req">*</span></label>
+        <textarea id="description" name="description" maxlength="1000" placeholder="مثال: أعمال لحام لإصلاح تسريب في خط الأنابيب"></textarea>
+        <p class="msg-bad">اكتب وصفًا واضحًا للعمل (٥ أحرف على الأقل)</p>
+      </div>
+      <div class="field" data-field="types">
+        <span class="label" id="typesLabel">نوع العمل الخطر<span class="req">*</span><span class="opt">(اختر واحدًا أو أكثر)</span></span>
+        <div class="chips" role="group" aria-labelledby="typesLabel">
+          <label class="chip"><input type="checkbox" name="types" value="hot_work"><span>أعمال حرارية / لحام</span></label>
+          <label class="chip"><input type="checkbox" name="types" value="confined_space"><span>أماكن مغلقة</span></label>
+          <label class="chip"><input type="checkbox" name="types" value="height"><span>العمل على مرتفعات</span></label>
+          <label class="chip"><input type="checkbox" name="types" value="electrical"><span>كهرباء</span></label>
+          <label class="chip"><input type="checkbox" name="types" value="excavation"><span>حفريات</span></label>
+          <label class="chip"><input type="checkbox" name="types" value="lifting"><span>أعمال رفع</span></label>
+          <label class="chip"><input type="checkbox" name="types" value="other"><span>أخرى</span></label>
+        </div>
+        <p class="msg-bad">اختر نوع عمل واحدًا على الأقل</p>
+      </div>
+      <div class="field">
+        <label for="equipmentUsed">المعدات والأدوات المستخدمة<span class="opt">(اختياري)</span></label>
+        <input id="equipmentUsed" name="equipmentUsed" type="text" maxlength="300" placeholder="مثال: ماكينة لحام كهربائي">
+      </div>
+      <div class="field">
+        <label for="workers">عدد العمال</label>
+        <div class="stepper">
+          <button type="button" id="plus" aria-label="زيادة العدد">+</button>
+          <input id="workers" name="workers" type="number" inputmode="numeric" min="1" max="500" value="1">
+          <button type="button" id="minus" aria-label="إنقاص العدد">−</button>
+        </div>
+      </div>
+      <div class="row2 field">
+        <div>
+          <label for="startAt">بداية العمل<span class="opt">(اختياري)</span></label>
+          <input id="startAt" name="startAt" type="datetime-local">
+        </div>
+        <div>
+          <label for="endAt">نهاية العمل<span class="opt">(اختياري)</span></label>
+          <input id="endAt" name="endAt" type="datetime-local">
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>صورة المعدات أو موقع العمل</h2>
+      <div class="field" data-field="photo">
+        <button type="button" class="photo" id="photoBtn" aria-label="التقاط أو اختيار صورة">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.6-2.4h6.8L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.6"/></svg>
+          <span>التقاط صورة أو اختيارها من الجهاز</span>
+          <span class="req" style="margin:0;font-weight:600;font-size:13.5px">إلزامية</span>
+        </button>
+        <input id="photoInput" type="file" accept="image/*">
+        <p class="msg-bad" id="photoMsg">أرفق صورة المعدات أو موقع العمل</p>
+      </div>
+    </section>
+
+    <div class="notice">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>
+      <span>لا تبدأ العمل قبل وصول رسالة القبول من قسم السلامة على واتساب.</span>
+    </div>
+
+    <input class="hp" type="text" name="zq_note" id="zqNote" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+    <div class="bar">
+      <div class="wrap">
+        <button type="submit" class="submit" id="submitBtn">إرسال طلب التصريح</button>
+      </div>
+    </div>
+  </form>
+</main>
+
+<section class="done" id="done" aria-live="polite">
+  <div class="wrap">
+    <div class="card">
+      <div class="check">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+      </div>
+      <h2>تم إرسال طلبك لقسم السلامة</h2>
+      <p>احتفظ برقم الطلب، وسيصلك الرد على واتساب:</p>
+      <p class="phone" id="donePhone"></p>
+      <p class="num-label">رقم الطلب</p>
+      <div class="num" id="doneNum">—</div>
+      <div class="notice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>
+        <span>لا تبدأ العمل قبل وصول رسالة القبول من قسم السلامة.</span>
+      </div>
+      <button type="button" class="again" id="again">تقديم طلب آخر</button>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+  var API_URL = '/api/contractor-permits';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  var form = $('#form');
+  var banner = $('#errorBanner');
+  var submitBtn = $('#submitBtn');
+  var photoBtn = $('#photoBtn');
+  var photoInput = $('#photoInput');
+  var photoData = null;
+  var busy = false;
+
+  function toAscii(s) {
+    return String(s).replace(/[٠-٩]/g, function (d) { return d.charCodeAt(0) - 0x0660; })
+                    .replace(/[۰-۹]/g, function (d) { return d.charCodeAt(0) - 0x06F0; });
+  }
+
+  // نفس قاعدة السيرفر تمامًا: جوال سعودي 05xxxxxxxx (يقبل 966 و+966 و00966)
+  function parsePhone(raw) {
+    var d = toAscii(raw).replace(/[^\d]/g, '');
+    if (d.indexOf('00') === 0) d = d.slice(2);
+    if (d.indexOf('966') === 0) d = d.slice(3);
+    if (d.indexOf('0') === 0) d = d.slice(1);
+    return /^5\d{8}$/.test(d) ? '0' + d : null;
+  }
+
+  function showBanner(text) {
+    banner.textContent = text;
+    banner.classList.add('show');
+    banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function clearBanner() { banner.classList.remove('show'); banner.textContent = ''; }
+  function mark(name, isBad) {
+    var box = $('[data-field="' + name + '"]');
+    if (box) box.classList.toggle('invalid', !!isBad);
+  }
+
+  // ---- عدّاد العمال ----
+  var workers = $('#workers');
+  $('#plus').addEventListener('click', function () { workers.value = Math.min(500, (parseInt(toAscii(workers.value), 10) || 0) + 1); });
+  $('#minus').addEventListener('click', function () { workers.value = Math.max(1, (parseInt(toAscii(workers.value), 10) || 2) - 1); });
+
+  // ---- الصورة: نضغطها في المتصفح (حد أقصى ١٢٨٠ بكسل) لتُرسل بسرعة حتى على باقة ضعيفة ----
+  photoBtn.addEventListener('click', function () { photoInput.click(); });
+  photoInput.addEventListener('change', function () {
+    var file = photoInput.files && photoInput.files[0];
+    if (!file) return;
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function () {
+      try {
+        var max = 1280;
+        var scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+        var w = Math.max(1, Math.round(img.naturalWidth * scale));
+        var h = Math.max(1, Math.round(img.naturalHeight * scale));
+        var c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        var ctx = c.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        photoData = c.toDataURL('image/jpeg', 0.78);
+        photoBtn.classList.add('has');
+        photoBtn.innerHTML = '';
+        var preview = document.createElement('img');
+        preview.alt = 'معاينة الصورة المرفقة';
+        preview.src = photoData;
+        var swap = document.createElement('span');
+        swap.className = 'swap';
+        swap.textContent = 'تغيير الصورة';
+        photoBtn.appendChild(preview);
+        photoBtn.appendChild(swap);
+        mark('photo', false);
+        clearBanner();
+      } catch (e) {
+        photoData = null;
+        showBanner('تعذّر تجهيز الصورة، جرّب صورة أخرى.');
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    };
+    img.onerror = function () {
+      URL.revokeObjectURL(url);
+      photoData = null;
+      showBanner('تعذّر قراءة هذه الصورة. التقط صورة جديدة أو اختر صورة بصيغة JPG أو PNG.');
+    };
+    img.src = url;
+  });
+
+  function collect() {
+    var loc = $('input[name="location"]:checked');
+    return {
+      officeName: $('#company').value.trim(),
+      contractorName: $('#name').value.trim(),
+      phone: $('#phone').value.trim(),
+      location: loc ? loc.value : '',
+      locationDetail: $('#locationDetail').value.trim(),
+      description: $('#description').value.trim(),
+      operationTypes: $$('input[name="types"]:checked').map(function (i) { return i.value; }),
+      equipmentUsed: $('#equipmentUsed').value.trim(),
+      workersCount: parseInt(toAscii(workers.value), 10) || 1,
+      startAt: $('#startAt').value || null,
+      endAt: $('#endAt').value || null,
+      equipmentPhoto: photoData,
+      zqNote: $('#zqNote').value
+    };
+  }
+
+  function validate(d) {
+    var problems = [];
+    function check(name, ok) { mark(name, !ok); if (!ok) problems.push(name); }
+    check('company', d.officeName.length >= 2);
+    check('name', d.contractorName.length >= 3);
+    check('phone', !!parsePhone(d.phone));
+    check('location', !!d.location);
+    check('description', d.description.length >= 5);
+    check('types', d.operationTypes.length > 0);
+    check('photo', !!d.equipmentPhoto);
+    if (d.startAt && d.endAt && new Date(d.endAt) < new Date(d.startAt)) {
+      problems.push('dates');
+      showBanner('وقت نهاية العمل يجب أن يكون بعد وقت البداية.');
+    }
+    return problems;
+  }
+
+  // إزالة علامة الخطأ بمجرد التعديل
+  ['company', 'name', 'phone', 'description'].forEach(function (n) {
+    var el = $('[data-field="' + n + '"] input, [data-field="' + n + '"] textarea');
+    if (el) el.addEventListener('input', function () { mark(n, false); });
+  });
+  $$('input[name="location"]').forEach(function (i) { i.addEventListener('change', function () { mark('location', false); }); });
+  $$('input[name="types"]').forEach(function (i) { i.addEventListener('change', function () { mark('types', false); }); });
+
+  form.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (busy) return;
+    clearBanner();
+    var data = collect();
+    var problems = validate(data);
+    if (problems.length > 0) {
+      var first = $('.invalid') || null;
+      if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (problems.indexOf('dates') === -1) showBanner('أكمل الحقول المطلوبة المعلّمة باللون الأحمر.');
+      return;
+    }
+
+    busy = true;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'جارٍ الإرسال…';
+
+    var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+    var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 60000) : null;
+
+    fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (json) { return { ok: res.ok, status: res.status, json: json }; });
+    }).then(function (r) {
+      if (r.ok && r.json && r.json.ok && r.json.permitId) {
+        $('#doneNum').textContent = String(r.json.permitId);
+        $('#donePhone').textContent = parsePhone(data.phone);
+        document.body.classList.add('is-done');
+        window.scrollTo(0, 0);
+      } else {
+        showBanner((r.json && r.json.error) || 'تعذّر إرسال الطلب، حاول مرة أخرى.');
+      }
+    }).catch(function () {
+      showBanner('تعذّر الاتصال بالسيرفر. تأكد من الإنترنت وحاول مرة أخرى — بياناتك ما زالت محفوظة في الصفحة.');
+    }).then(function () {
+      if (timer) clearTimeout(timer);
+      busy = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'إرسال طلب التصريح';
+    });
+  });
+
+  $('#again').addEventListener('click', function () {
+    form.reset();
+    workers.value = 1;
+    photoData = null;
+    photoInput.value = '';
+    photoBtn.classList.remove('has');
+    photoBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.6-2.4h6.8L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.6"/></svg><span>التقاط صورة أو اختيارها من الجهاز</span><span class="req" style="margin:0;font-weight:600;font-size:13.5px">إلزامية</span>';
+    $$('.invalid').forEach(function (e) { e.classList.remove('invalid'); });
+    clearBanner();
+    document.body.classList.remove('is-done');
+    window.scrollTo(0, 0);
+  });
+})();
+</script>
+</body>
+</html>
